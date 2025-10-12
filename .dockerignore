@@ -1,0 +1,29 @@
+# .dockerignore
+
+# Ignore vendor and node_modules, they will be installed inside the container
+/vendor
+/node_modules
+
+# Ignore Git directory
+.git
+
+# Ignore development specific files
+.env
+.env.backup
+.sail
+Homestead.yaml
+Homestead.json
+npm-debug.log
+yarn-error.log
+
+# Ignore storage files that should be generated
+public/storage
+/storage/*.key
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*.log
+
+# Ignore IDE specific files
+.idea
+.vscode

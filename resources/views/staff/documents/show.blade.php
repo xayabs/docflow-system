@@ -1,0 +1,123 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('ລາຍລະອຽດເອກະສານ:') }} {{ $document->title }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 space-y-6">
+
+                    {{-- Section 1: Document Summary --}}
+                    <div>
+                        <h3 class="text-lg font-medium border-b pb-2 mb-4">ສະຫຼຸບຂໍ້ມູນເອກະສານ</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <dt class="text-base font-medium text-gray-500">ສະຖານະ</dt>
+                                <dd class="mt-1 text-sm text-gray-900 font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full {{ getStatusColorClass($document->status) }}">
+                                {{ translateStatus($document->status) }}</dd>
+                                <!--inline-block">{{ $document->status }}-->
+                            </div>
+                            <div>
+                                <dt class="text-base font-medium text-gray-500">ປະເພດ</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ $document->documentType->name ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-base font-medium text-gray-500">ຜູ້ສະເໜີ</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ $document->requester->name ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-base font-medium text-gray-500">ພາກສ່ວນ</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ $document->requester->department->name ?? 'N/A' }}</dd>
+                            </div>
+                            @if($document->document_type_id != 2)
+                            <div>
+                                <dt class="text-base font-medium text-gray-500">ມູນຄ່າລວມ</dt>
+                                <dd class="mt-1 text-sm text-gray-900 font-bold">{{ number_format($document->total_amount, 2) }} KIP</dd>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Section 2: Document Items --}}
+                    @if($document->document_type_id != 2)
+                    <div>
+                        <h3 class="text-lg font-medium border-b pb-2 mb-4">ລາຍການເບີກຈ່າຍ</h3>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-base font-bold text-gray-500 uppercase">ລາຍລະອຽດ</th>
+                                    <th class="px-6 py-3 text-right text-base font-bold text-gray-500 uppercase">ຈຳນວນ</th>
+                                    <th class="px-6 py-3 text-right text-base font-bold text-gray-500 uppercase">ລາຄາຕໍ່ໜ່ວຍ</th>
+                                    <th class="px-6 py-3 text-right text-base font-bold text-gray-500 uppercase">ລາຄາລວມ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($document->documentItems as $item)
+                                    <tr>
+                                        <td class="px-6 py-4">{{ $item->item_description }}</td>
+                                        <td class="px-6 py-4 text-right">{{ $item->quantity }}</td>
+                                        <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 2) }}</td>
+                                        <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-right font-bold">ລວມທັງໝົດ:</td>
+                                    <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 2) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    @endif
+                    {{-- Section 3: Attachments --}}
+                    @if($document->document_type_id != 2)
+                    <div>
+                        <h3 class="text-lg font-medium border-b pb-2 mb-4">ໄຟລ໌ຄັດຕິດ</h3>
+                        <ul class="list-disc pl-5">
+                            @forelse ($document->attachments as $attachment)
+                                <li>
+                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                                        {{ $attachment->file_name }}
+                                    </a>
+                                </li>
+                            @empty
+                                <li>ບໍ່ມີໄຟລ໌ຄັດຕິດ</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                    @endif
+                    {{-- ===== Component ສະແດງປະຫວັດ ===== --}}
+                    <x-document-history :logs="$document->documentLogs" />
+
+                    {{-- Print Button --}}
+                    <!--<a href="{{ route('staff.documents.print', $document->id) }}" target="_blank" class="inline-flex ...">ພິມເອກະສານ</a>-->
+
+                    {{-- ======================================================== --}}
+                    {{-- ===== ปุ่ม Actions (พิมพ์ และ กลับคืน) - ฉบับแก้ไข ===== --}}
+                    {{-- ======================================================== --}}
+                    <div class="mt-6 pt-4 border-t flex justify-end items-center space-x-4">
+    
+                        {{-- ปุ่มพิมพ์เอกสาร --}}
+                        <a href="{{ route('staff.documents.print', $document->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            {{-- ไอคอนเครื่องพิมพ์ --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            ພີມເອກະສານ
+                        </a>
+
+                        {{-- ปุ่มกลับคืน --}}
+                        <a href="{{ route('staff.documents.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
+                            ກັບຄືນ
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

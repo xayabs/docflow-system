@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+th {
+    @apply text-base font-medium text-gray-600 uppercase tracking-wider;
+}
+
+/*
+ * กำหนดสไตล์ให้กับ Table Header (th) ทุกตัวในระบบ
+ */
+/*
+th {
+    /* คุณสามารถเปลี่ยน text-xs เป็นขนาดที่คุณต้องการได้เลย *//*
+    @apply text-xl font-medium text-gray-500 uppercase tracking-wider;
+}
+text-xs: คือคลาสที่กำหนดขนาดฟอนต์เป็น 0.75rem (12px)
+text-xs เป็น text-sm (ขนาด 0.875rem / 14px)
+text-base (ขนาด 1rem / 16px)
+text-lg:ขนาด: 1.125rem (ประมาณ 18px)
+text-xl:ขนาด: 1.25rem (ประมาณ 20px)
+text-2xl:ขนาด: 1.5rem (ประมาณ 24px)
+โค้ด: @apply text-2xl ...
+(และใหญ่ขึ้นไปอีก 3xl, 4xl, ...)
+*/
+/*
+ * กำหนดสไตล์ให้กับ Table Data (td) ทุกตัวในระบบ
+ */
+td {
+    /* text-xs คือขนาด 0.75rem หรือ 12px */
+    /* ถ้าต้องการ 10px พอดี, เราจะใช้ arbitrary value */
+    @apply text-[14px];
+}
