@@ -114,7 +114,7 @@
                                 <span class="font-semibold">ຊື່ໂປຣແກຣມ (Program Name):</span> ລະບົບຕິດຕາມເອກະສານການເງິນ
                             </li>
                             <li>
-                                <span class="font-semibold">ຮຸ່ນ (Version):</span> 1.0.1
+                                <span class="font-semibold">ຮຸ່ນ (Version):</span> {{ config('app_settings.version') }}
                             </li>
                             <li>
                                 <span class="font-semibold">ຄຳອະທິບາຍโดยຫຍໍ້ (Brief Description):</span>
