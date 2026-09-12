@@ -117,7 +117,7 @@
                                 <span class="font-semibold">ຮຸ່ນ (Version):</span> {{ config('app_settings.version') }}
                             </li>
                             <li>
-                                <span class="font-semibold">ຄຳອະທິບາຍโดยຫຍໍ້ (Brief Description):</span>
+                                <span class="font-semibold">ຄຳອະທິບາຍໂດຍຫຍໍ້ (Brief Description):</span>
                                 {{-- ใช้ blockquote หรือ div ที่มี padding เพื่อย่อหน้าคำอธิบาย --}}
                                 <div class="pl-4 mt-1 border-l-2 border-gray-200">
                                     <p>ໂປຣແກຣມນີ້ຖືກພັດທະນາຂຶ້ນ ເພື່ອເພີ່ມປະສິດທິພາບໃນການບໍລິຫານຈັດການເອກະສານທາງດ້ານການເງິນຂອງຄະນະວິທະຍາສາດທໍາມະຊາດ. ລະບົບຈະຊ່ວຍໃຫ້ສາມາດຕິດຕາມຂັ້ນຕອນ ແລະ ການເຄື່ອນໄຫວຂອງເອກະສານໄດ້ຢ່າງເປັນລະບົບ, ຫຼຸດຜ່ອນການສູນຫາຍ, ສ້າງຄວາມໂປ່ງໃສ ແລະ ຊ່ວຍໃຫ້ການຄົ້ນຫາຂໍ້ມູນໃນອະດີດສາມາດເຮັດໄດ້ຢ່າງງ່າຍດາຍ.</p>

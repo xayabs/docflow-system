@@ -1,6 +1,10 @@
 {
     "saysettha ot": {
-        "normal": "\/var\/www\/html\/storage\/fonts\/saysettha_ot_normal_3a578e2727d44e8d4659acbf7bf098ea",
-        "bold": "saysettha_ot_bold_3a578e2727d44e8d4659acbf7bf098ea"
+        "normal": "C:\\Apache24\\htdocs\\docflow-system\\storage\\fonts\/saysettha_ot_normal_76766278fd303efe043561f9ae6f13d6",
+        "bold": "saysettha_ot_bold_76766278fd303efe043561f9ae6f13d6"
+    },
+    "noto sans lao": {
+        "normal": "C:\\Apache24\\htdocs\\docflow-system\\storage\\fonts\/noto_sans_lao_normal_13221ec905d8a9095805ed76eae734e8",
+        "bold": "noto_sans_lao_bold_79c7927a50d6e4e0c2d4202c5433d9ed"
     }
 }

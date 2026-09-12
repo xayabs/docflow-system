@@ -98,7 +98,7 @@ class DocumentSubmitted extends Notification //implements ShouldQueue
         return [
             'document_id' => $this->document->id,
             'title' => $this->document->title,
-            'message' => 'ມີເອກະສານໃໝ່ລໍຖ້າການກວດສອບຈ່າກທ່ານ',
+            'message' => 'ມີເອກະສານໃໝ່ລໍຖ້າການກວດສອບຈາກທ່ານ',
             // 4. ສ້າງ URL ຈາກ Route Name ແລະ Parameters ທີ່ເຮົາເລືອກໄວ້
             'url' => route($routeName, $routeParams),
         ];

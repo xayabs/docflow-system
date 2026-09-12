@@ -49,6 +49,9 @@
                         <x-nav-link :href="route('vicedean.dashboard')" :active="request()->routeIs('vicedean.*')">
                             {{ __('ໜ້າຫຼັກຮອງຄະນະບໍດີ') }}
                         </x-nav-link>  
+                        <x-nav-link :href="route('vicedean.documents.all')" :active="request()->routeIs('vicedean.documents.all')">
+                            {{ __('ຕິດຕາມເອກະສານທັງໝົດ') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('vicedean.history.approved')" :active="request()->routeIs('vicedean.history.approved')">
                             {{ __('ເອກະສານທີ່ໄດ້ອະນຸມັດ/ກວດສອບຜ່ານ') }}
                         </x-nav-link>
@@ -59,6 +62,9 @@
                     @elseif($userRole === 'Head_of_Finance')
                         <x-nav-link :href="route('headfinance.dashboard')" :active="request()->routeIs('headfinance.*')">{{ __('ໜ້າຫຼັກຫົວໜ້າພະແນກການເງິນ') }}
                         </x-nav-link>   
+                        <x-nav-link :href="route('headfinance.documents.all')" :active="request()->routeIs('headfinance.documents.all')">
+                            {{ __('ຕິດຕາມເອກະສານທັງໝົດ') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('headfinance.history.approved')" :active="request()->routeIs('headfinance.history.approved')">
                             {{ __('ເອກະສານທີ່ໄດ້ກວດສອບ/ເຊັນຢັ້ງຢືນ') }}
                         </x-nav-link>
@@ -70,6 +76,9 @@
                         <x-nav-link :href="route('dean.dashboard')" :active="request()->routeIs('dean.*')">
                             {{ __('ໜ້າຫຼັກຄະນະບໍດີ') }}
                         </x-nav-link>   
+                        <x-nav-link :href="route('dean.documents.all')" :active="request()->routeIs('dean.documents.all')">
+                            {{ __('ຕິດຕາມເອກະສານທັງໝົດ') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('dean.history.approved')" :active="request()->routeIs('dean.history.approved')">
                             {{ __('ເອກະສານທີ່ໄດ້ອະນຸມັດ') }}
                         </x-nav-link>
@@ -79,12 +88,14 @@
 
                     @elseif($userRole === 'Cashier')
                         <x-nav-link :href="route('cashier.dashboard')" :active="request()->routeIs('cashier.dashboard')">{{ __('ໜ້າຫຼັກຄັງເງິນສົດ') }}</x-nav-link>
+                        <x-nav-link :href="route('cashier.history.withdrawalSlips')" :active="request()->routeIs('cashier.history.withdrawalSlips')">
+                            {{ __('ເອກະສານທີ່ຂຽນໃບຖອນແລ້ວ') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('cashier.history.approved')" :active="request()->routeIs('cashier.history.approved')">{{ __('ເອກະສານທີ່ຈ່າຍແລ້ວ') }}</x-nav-link>
         
                     @elseif($userRole === 'Procurement_Staff')
                         <x-nav-link :href="route('procurement.dashboard')" :active="request()->routeIs('procurement.dashboard')">{{ __('ໜ້າຫຼັກຝ່າຍຈັດຊື້') }}</x-nav-link>
                         <x-nav-link :href="route('procurement.history.approved')" :active="request()->routeIs('procurement.history.approved')">{{ __('ເອກະສານທີ່ອະນຸມັດຜ່ານ') }}</x-nav-link>
-                        <!--<x-nav-link :href="route('procurement.history.rejected')" :active="request()->routeIs('procurement.history.rejected')">{{ __('ເອກະສານທີ່ໃຫ້ປັບປຸງຄືນ') }}</x-nav-link>-->
                     @endif
 
                     {{-- เมนูรายงาน (แสดงสำหรับ Admin และ Head_of_Finance) --}}
@@ -96,19 +107,6 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <!--
-                <div class="ms-3 relative">
-                    <a href="#" class="relative inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg hover:text-gray-700 focus:outline-none">
-                        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
-                        <span class="sr-only">Notifications</span>
-                        @if(auth()->user()->unreadNotifications->count() > 0)
-                            <div class="absolute inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-1">
-                                {{ auth()->user()->unreadNotifications->count() }}
-                            </div>
-                        @endif
-                    </a>
-                    {{-- ເຮົາຈະເຮັດ Dropdown ສະແດງການ Notification ໃນພາຍຫຼັງ --}}
-                </div>-->
                 
                 {{-- ===== Notification Dropdown ===== --}}
                 <div class="hidden sm:flex sm:items-center sm:ms-6">

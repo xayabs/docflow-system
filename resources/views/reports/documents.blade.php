@@ -89,7 +89,7 @@
                                         <td class="px-6 py-4">{{ $document->title }}</td>
                                         <!--<td class="px-6 py-4">{{ $document->requester->displayName ?? '' }}</td>-->
                                         <td class="px-6 py-4">{{ $document->department->name ?? '' }}</td>
-                                        <td class="px-6 py-4 text-right">{{ number_format($document->total_amount, 2) }}</td>
+                                        <td class="px-6 py-4 text-right">{{ number_format($document->total_amount, 0) }}</td>
                                         <td class="px-6 py-4">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ getStatusColorClass($document->status) }}">
                                                 {{ translateStatus($document->status) }}

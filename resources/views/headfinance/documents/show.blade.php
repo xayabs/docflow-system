@@ -38,7 +38,6 @@
                                 <dt class="text-base font-medium text-gray-500">ສະຖານະ</dt>
                                 <dd class="mt-1 text-sm text-gray-900 font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full {{ getStatusColorClass($document->status) }}">
                                 {{ translateStatus($document->status) }}</dd>
-                                <!--inline-block">{{ $document->status }}</dd>-->
                             </div>
                             <div>
                                 <dt class="text-base font-medium text-gray-500">ປະເພດ</dt>
@@ -75,9 +74,9 @@
                             @forelse ($document->documentItems as $item)
                                 <tr>
                                     <td class="px-6 py-4">{{ $item->item_description }}</td>
-                                    <td class="px-6 py-4 text-right">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 2) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->quantity, 0) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 0) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 0) }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -92,7 +91,7 @@
                                 <tfoot>
                                     <tr>
                                         <td colspan="3" class="px-6 py-4 text-right font-bold">ລວມທັງໝົດ:</td>
-                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 2) }}</td>
+                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 0) }}</td>
                                     </tr>
                                 </tfoot>
                             @endif
@@ -118,10 +117,10 @@
                     {{-- Section: Document History --}}
                     <x-document-history :logs="$document->documentLogs" />
                         
-                    {{-- ====================================================== --}}
-                    {{-- === Section 4: Action Buttons (ฉบับ Alpine.js ขั้นสูง) === --}}
-                    {{-- ====================================================== --}}
-                    @if($document->status === 'PENDING_FINANCE_HEAD_APPROVAL')
+                    {{-- ==================================================== --}}
+                    {{-- == Section 4: Action Buttons (ฉบับ Alpine.js ขั้นสูง) == --}}
+                    {{-- ==================================================== --}}
+                    @if(in_array($document->status, ['PENDING_FINANCE_HEAD_APPROVAL', 'PENDING_FINANCE_HEAD_VERIFICATION']))
                         {{-- 1. Alpine.js Component หลัก ครอบทุกอย่าง --}}
                         <div x-data="{ 
                             showNoteSection: false, 
@@ -214,30 +213,18 @@
                                 <x-danger-button type="button" @click="showRejectReason = true" x-show="!showRejectReason" class="btn-danger">
                                     ສົ່ງກັບຄືນນາຍບັນຊີ
                                 </x-danger-button>
-                                <!--
-                                <button type="button" @click="showRejectReason = true" x-show="!showRejectReason" class="btn-danger">
-                                    ສົ່ງກັບເພື່ອແກ້ໄຂ
-                                </button>-->
                     
                                 {{-- ปุ่ม "อนุมัติ" (จะแสดงเมื่อยังไม่กดปฏิเสธ) --}}
                                 
                                 <x-primary-button type="submit" name="action" value="approve" x-show="!showRejectReason" class="btn-primary" onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອະນຸມັດ ແລະ ສົ່ງຕໍ່ເອກະສານນີ້?')">
                                     ອະນຸມັດ (ສົ່ງຕໍ່)
                                 </x-primary-button>
-                                <!--
-                                <button type="submit" name="action" value="approve" x-show="!showRejectReason" class="btn-primary" onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອະນຸມັດ ແລະ ສົ່ງຕໍ່ເອກະສານນີ້?')">
-                                    ອະນຸມັດ (ສົ່ງຕໍ່)
-                                </button>-->
 
                                 {{-- ปุ่ม "ยืนยันการปฏิเสธ" (จะแสดงเมื่อกดปฏิเสธแล้ว) --}}
                                 
                                 <x-danger-button type="submit" name="action" value="reject" x-show="showRejectReason" class="btn-danger" onclick="return confirm('ທ່ານຢືນຢັນທີ່ຈະປະຕິເສດເອກະສານນີ້ແມ່ນບໍ?')">
                                     ຢືນຢັນການສົ່ງກັບ
                                 </x-danger-button>
-                                <!--
-                                <button type="submit" name="action" value="reject" x-show="showRejectReason" class="btn-danger" onclick="return confirm('ທ່ານຢືນຢັນທີ່ຈະສົ່ງກັບເອກະສານນີ້ແມ່ນບໍ?')">
-                                    ຢືນຢັນການສົ່ງກັບ
-                                </button>-->
                             </div>
                         </form>
                     </div>

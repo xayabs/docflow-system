@@ -79,6 +79,51 @@ class DeanDashboardController extends Controller
         return view('dean.documents.show', compact('document', 'privateNotes'));
     }
 
+    // ເພີ່ມໂຄດນີ້ໃສ່ໃນ Controller ຂອງທັງ 3 ບົດບາດ
+    public function allDocuments(Request $request)
+    {
+        // 1. ດຶງຂໍ້ມູນເອກະສານທັງໝົດ ທີ່ບໍ່ແມ່ນສະບັບຮ່າງ (DRAFT)
+        $query = Document::where('status', '!=', 'DRAFT');
+
+        // 2. ຮອງຮັບການຄົ້ນຫາ ແລະ ກັ່ນຕອງຂໍ້ມູນ (ເອີ້ນໃຊ້ຟອມຄົ້ນຫາໄດ້ຄືກັນ)
+        if ($request->filled('doc_code')) {
+            $query->where('document_code', 'like', '%' . $request->doc_code . '%');
+        }
+        if ($request->filled('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $documents = $query->with('requester.department', 'documentType')
+                           ->latest()
+                           ->paginate(15)
+                           ->withQueryString();
+
+        $departments = \App\Models\Department::orderBy('name')->get();
+        
+        // ດຶງສະຖານະທັງໝົດຍົກເວັ້ນສະບັບຮ່າງ ເພື່ອມາເປັນຕົວເລືອກກັ່ນຕອງ
+        $statuses = get_all_statuses_translation();
+        unset($statuses['DRAFT']);
+
+        // ສົ່ງໄປຫາ View ຂອງແຕ່ລະບົດບາດ:
+        // - ສຳລັບ Dean: 'dean.documents.all'
+        $viewPath = '';
+        $userRole = auth()->user()->role->name;
+        if ($userRole === 'Dean') $viewPath = 'dean.documents.all';
+        elseif ($userRole === 'Vice_Dean') $viewPath = 'vicedean.documents.all';
+        elseif ($userRole === 'Head_of_Finance') $viewPath = 'headfinance.documents.all';
+
+        return view($viewPath, compact('documents', 'departments', 'statuses'));
+    }
+
     /**
     * Approve the document and move it to the next step in the workflow.
     */
@@ -171,111 +216,10 @@ class DeanDashboardController extends Controller
                 }
             }
         }
-        /*
-        if (!empty($recipientRoleName)) {
-            // 7.1 ค้นหาผู้รับหลัก (ตาม Role Name)
-            $recipients = User::whereHas('role', function ($query) use ($recipientRoleName) {
-                $query->where('name', $recipientRoleName);
-            })->get();
-    
-            // 7.2 (ใหม่) ถ้าเป็นกรณีของ Procurement, ให้หาคนในแผนกจัดตั้งด้วย
-            if ($recipientRoleName === 'Procurement_Staff') {
-                // ID ของแผนกจัดตั้ง (สมมติว่าคือ 6)
-                $orgDepartmentId = 6; 
-        
-                // ค้นหา Staff คนอื่นๆ ในแผนกนั้น
-                $departmentStaff = User::where('department_id', $orgDepartmentId)
-                               ->whereHas('role', function ($q) { $q->where('name', 'Staff'); })
-                               ->get();
-        
-                // รวมผู้รับทั้งสองกลุ่มเข้าด้วยกัน
-                $recipients = $recipients->merge($departmentStaff);
-            }
-
-            // 7.3 ส่ง Notification
-            if ($recipients->isNotEmpty()) {
-                $notification = new DocumentSubmitted($document);
-                foreach ($recipients->unique('id') as $recipient) { // ใช้ unique() เพื่อป้องกันการส่งซ้ำ
-                    $recipient->notify($notification);
-                }
-            }
-        }*/
-        // --- 7. ส่วนการส่ง Notification (อยู่นอก Transaction) ---
-        /*
-        if (!empty($recipientRoleName)) {
-            $recipients = User::whereHas('role', function ($query) use ($recipientRoleName) {
-                $query->where('name', $recipientRoleName);
-            })->get();
-        
-            if ($recipients->isNotEmpty()) {
-                // (ใช้ DocumentSubmitted ไปก่อนเพื่อความง่าย)
-                $notification = new DocumentSubmitted($document);
-                foreach ($recipients as $recipient) {
-                    $recipient->notify($notification);
-                }
-            }
-        }*/
 
         // 8. Redirect
         return redirect()->route('dean.dashboard')->with('success', 'ອະນຸມັດເອກະສານສໍາເລັດແລ້ວ.');
     }
-
-    /*
-    public function approve(Document $document)
-    {
-        // 1. ກວດສອບເພື່ອຄວາມແນ່ນອນວ່າເອກະສານຢູ່ໃນສະຖານະທີ່ຖືກຕ້ອງ
-        if (!in_array($document->status, ['PENDING_DEAN_FINAL_APPROVAL', 'PENDING_DEAN_APPROVAL'])) {
-            return back()->with('error', 'ເອກະສານນີ້ບໍ່ໄດ້ຢູ່ໃນສະຖານະທີ່ລໍຖ້າການອະນຸມັດ.');
-        }
-
-        // ຄົ້ນຫາ ແລະ ອັບເດດການແຈ້ງເຕືອນທີ່ກ່ຽວຂ້ອງກັບເອກະສານນີ້ ໃຫ້ເປັນ "ອ່ານແລ້ວ"
-        Auth::user()->unreadNotifications
-            ->where('data.document_id', $document->id)
-            ->markAsRead();
-
-        // 2. ປ່ຽນສະຖານະຂອງເອກະສານໄປຂັ້ນຕອນຕໍ່ໄປ
-        $nextStatus = '';
-        $recipients = null;
-        if ($document->status === 'PENDING_DEAN_FINAL_APPROVAL') { // ຖ້າເປັນການອະນຸມັດຈ່າຍ
-            $nextStatus = 'READY_FOR_PAYMENT';
-        } elseif ($document->status === 'PENDING_DEAN_APPROVAL') { // ຖ້າເປັນການອະນຸມັດຫຼັກການຈັດຊື້
-            $nextStatus = 'PENDING_PROCUREMENT_EVALUATION'; // ສົ່ງໄປພະແນກຈັດຕັ້ງ
-        }
-
-        $document->status = $nextStatus;
-        $document->save();
-
-        // 3. ບັນທຶກປະຫວັດການດຳເນີນການ (Log)
-        $document->documentLogs()->create([
-            'user_id' => Auth::id(),
-            'action' => 'Approved by Dean',
-            'comment' => 'ຖືກຕ້ອງ ເໝາະສົມ, ສົ່ງຕໍ່ໃຫ້ຄະນະບໍດີອະນຸມັດ.'
-        ]);
-        
-        // ຄົ້ນຫາຜູ້ໃຊ້ທຸກຄົນທີ່ມີ Role ເປັນ Cashier
-        $casheirs = User::whereHas('role', function ($query) {
-            $query->where('name', 'Cashier');
-        })->get();
-
-        // ສົ່ງ Notification ໄປໃຫ້ Vice Dean ທຸກຄົນ
-        // ເຮົາສາມາດສ້າງ Notification Class ໃໝ່ ຫຼືປັບປຸງຂອງເດີມໃຫ້ຢຶດຢຸ່ນຂື້ນ
-        // ເພື່ອຄວາມງ່າຍ, ເຮົາຈະໃຊ້ DocumentSubmitted ໄປກ່ອນ
-        foreach ($casheirs as $cacheir) {
-            // ເຮົາຄວນສ້າງ Notification ໃໝ່ທີ່ຂໍ້ຄວາມເໝາະສົມກວ່າ
-            // ເຊັ່ນ new DocumentForwarded($document)
-            $cacheir->notify(new DocumentSubmitted($document));
-        }
-
-        if ($recipients) {
-            foreach ($recipients as $recipient) {
-                $recipient->notify(new DocumentForwarded($document, auth()->user()));
-            }
-        }
-
-        // 4. ສົ່ງກັບໄປໜ້າ Dashboard ພ້ອມຂໍ້ຄວາມແຈ້ງເຕືອນ
-        return redirect()->route('dean.dashboard')->with('success', 'ອະນຸມັດເອກະສານສຳເລັດແລ້ວ.');
-    }
-    */
 
     /**
     * Reject the document and send it back to the requester.
@@ -385,65 +329,6 @@ class DeanDashboardController extends Controller
     
         return redirect()->route('dean.dashboard')->with('success', 'ການສົ່ງເອກະສານກັບສຳເລັດແລ້ວ.');
     }
-    /*
-    public function reject(Request $request, Document $document)
-    {
-        // 1. ກວດສອບຄວາມຖືກຕ້ອງຂອງຂໍ້ມູນທີ່ສົ່ງມາ (ເຫດຜົນ)
-        $request->validate([
-            'rejection_reason' => 'required|string|min:10',
-        ]);
-    
-        // 2. ກວດສອບສະຖານະເອກະສານ
-        if ($document->status !== 'PENDING_DEAN_FINAL_APPROVAL') {
-            return back()->with('error', 'ເອກະສານນີ້ບໍ່ໄດ້ຢູ່ໃນສະຖານະທີ່ລໍຖ້າການກວດສອບ.');
-        }
-
-        Auth::user()->unreadNotifications
-            ->where('data.document_id', $document->id)
-            ->markAsRead();
-
-        // 3. บันทึกสถานะปัจจุบัน (ก่อนที่จะเปลี่ยนเป็น REJECTED)
-        $document->status_before_rejected = $document->status;
-
-        // 4. ປ່ຽນສະຖານະເອກະສານເປັນ REJECTED ແລະ ບັນທຶກເຫດຜົນ
-        $document->status = 'REJECTED';
-        $document->rejected_reason = $request->input('rejection_reason');
-        $document->save();
-    
-        // 5. ບັນທຶກປະຫວັດການດຳເນີນການ (Log)
-        $document->documentLogs()->create([
-            'user_id' => Auth::id(),
-            'action' => 'Rejected by Dean',
-            'comment' => $request->input('rejection_reason')
-        ]);
-
-        // 6. ດືງຂໍ້ມູນຜູ້ສ້າງເອກະສານ (Requester)
-        $requester = $document->requester; // ເຮົາຕ້ອງສ້າງ Relationship ນີ້
-        // 1. แจ้งเตือนผู้สร้าง (Requester) - เหมือนเดิม
-        $requester = $document->requester;
-        if ($requester) {
-            $requester->notify(new \App\Notifications\DocumentRejected($document, auth()->user()));
-        }
-
-        // 7. ค้นหาผู้ใช้ใน Role ที่เกี่ยวข้อง
-        $concernedRoles = [
-            'Dean_Secretary',
-            'Finance_Preparer',
-            'Accountant',
-            'Vice_Dean',
-            'Head_of_Finance'
-        ];
-        // 8. ค้นหาผู้ใช้ทั้งหมดใน Role เหล่านั้น
-        $recipients = \App\Models\User::whereHas('role', function ($query) use ($concernedRoles) {
-            $query->whereIn('name', $concernedRoles);
-        })->get();
-        // 9. ส่ง Notification ไปให้ผู้รับทุกคน
-        foreach ($recipients as $recipient) {
-            $recipient->notify(new \App\Notifications\DocumentWasRejectedToApprover($document, auth()->user()));
-        }
-        // 10. ສົ່ງກັບໄປໜ້າ Dashboard ພ້ອມຂໍ້ຄວາມແຈ້ງເຕືອນ
-        return redirect()->route('dean.dashboard')->with('success', 'ປະຕິເສດເອກະສານສຳເລັດແລ້ວ.');
-    }*/
 
     public function approvedHistory(Request $request)
     {

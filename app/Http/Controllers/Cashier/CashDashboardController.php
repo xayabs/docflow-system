@@ -46,11 +46,14 @@ class CashDashboardController extends Controller
         }
 
         // ດຶງຂໍ້ມູນສະເພາະເອກະສານທີ່ລໍຖ້າການຈ່າຍເງິນຈາກຄັງເງິນສົດ
-        $payableDocuments = Document::where('status', 'READY_FOR_PAYMENT')
+        $payableDocuments = Document::whereIn('status', [
+                                        'PENDING_CASHIER_WITHDRAWAL_SLIP', 
+                                        'READY_FOR_PAYMENT'               
+                                    ])
                                     ->with('requester.department', 'documentType')
                                     ->latest()
                                     ->paginate(15);
-
+        
         $departments = \App\Models\Department::orderBy('name')->get();
 
         return view('cashier.dashboard', compact('payableDocuments', 'departments'));
@@ -58,116 +61,117 @@ class CashDashboardController extends Controller
 
     public function show(Document $document)
     {
-        // ກວດສອບສະຖານະກ່ອນ
-        if ($document->status !== 'READY_FOR_PAYMENT') {
-            return redirect()->route('cashier.dashboard')->with('error', 'ເອກະສານນີ້ບໍ່ຢູ່ໃນສະຖານະທີ່ລໍຖ້າຈ່າຍເງິນ');
+        // ແກ້ໄຂບ່ອນນີ້: ໃຫ້ຍອມຮັບທັງ 2 ສະຖານະຂອງຄັງເງິນສົດ
+        if (!in_array($document->status, ['PENDING_CASHIER_WITHDRAWAL_SLIP', 'READY_FOR_PAYMENT'])) {
+            return redirect()->route('cashier.dashboard')->with('error', 'ເອກະສານນີ້ບໍ່ຢູ່ໃນສະຖານະທີ່ສາມາດດຳເນີນການໄດ້ໃນຂະນະນີ້.');
         }
 
-        $document->load('documentType', 'documentItems', 'attachments', 'requester.department', 'documentLogs.user.role');
+        $document->load('documentType', 'documentItems', 'attachments', 'requester.department');
 
         return view('cashier.documents.show', compact('document'));
     }
-    
-    public function confirmPayment(Document $document)
+
+    // ປ່ຽນຊື່ method ຈາກ confirmPayment ເປັນ process
+    public function process(Request $request, Document $document)
     {
-        // 1. ตรวจสอบสถานะ (ถูกต้อง)
-        if ($document->status !== 'READY_FOR_PAYMENT') {
-            return redirect()->route('cashier.dashboard')->with('error', 'ເອກະສານນີ້ໄດ້ຖືກດຳເນີນການໄປແລ້ວ');
+        // 1. ກວດສອບສະຖານະປັດຈຸບັນ (ຕ້ອງເປັນ "ລໍຖ້າຕີໃບຖອນ" ຫຼື "ພ້ອມຈ່າຍ")
+        if (!in_array($document->status, ['PENDING_CASHIER_WITHDRAWAL_SLIP', 'READY_FOR_PAYMENT'])) {
+            return redirect()->route('cashier.dashboard')->with('error', 'ເອກະສານນີ້ໄດ້ຖືກດຳເນີນການໄປແລ້ວ.');
         }
 
-        // --- เริ่ม Transaction ---
+        $action = $request->input('action', 'approve'); // ຮັບຄ່າ 'approve' ຫຼື 'reject'
+        $nextStatus = '';
+        $logAction = '';
+        $logComment = '';
+
+        // --- ເລີ່ມ Transaction ---
         DB::beginTransaction();
         try {
-            // 2. Mark as Read (ถูกต้อง)
+            // 2. ເຮັດເຄື່ອງໝາຍວ່າອ່ານແລ້ວ
             Auth::user()->unreadNotifications
                 ->where('data.document_id', $document->id)
                 ->markAsRead();
-            
-            // 3. เปลี่ยนสถานะ (ถูกต้อง)
-            $document->status = 'PAID';
-            $document->save();
 
-            // 4. บันทึก Log (ถูกต้อง)
-            $document->documentLogs()->create([
-                'user_id' => Auth::id(),
-                'action' => 'Payment Confirmed by Cashier',
-                'comment' => 'ດຳເນີນການຈ່າຍເງິນສຳເລັດ.'
-            ]);
-        
-            DB::commit();
+            if ($action === 'approve') {
+                // ແຍກ Logic ຕາມສະຖານະຂອງເອກະສານ
+                if ($document->status === 'PENDING_CASHIER_WITHDRAWAL_SLIP') {
+                    $nextStatus = 'PENDING_ACCOUNTANT_VERIFICATION'; // ສົ່ງຕໍ່ໃຫ້ ນາຍບັນຊີ ເຊັນຢັ້ງຢືນ
+                    $logAction = 'Withdrawal Slip Created';
+                    $logComment = 'ຄັງເງິນສົດຕີໃບຖອນສຳເລັດ, ສົ່ງຕໍ່ໃຫ້ນາຍບັນຊີເຊັນຢັ້ງຢືນ.';
+                } elseif ($document->status === 'READY_FOR_PAYMENT') {
+                    $nextStatus = 'PAID'; // ສຳເລັດຂະບວນການຈ່າຍເງິນ
+                    $logAction = 'Payment Confirmed by Cashier';
+                    $logComment = 'ດຳເນີນການຈ່າຍເງິນສົດສຳເລັດ.';
+                }
+
+                // 3. ອັບເດດສະຖານະເອກະສານ
+                $document->status = $nextStatus;
+                $document->save();
+
+                // 4. ບັນທຶກປະຫວັດ (Log)
+                $document->documentLogs()->create([
+                    'user_id' => Auth::id(),
+                    'action' => $logAction,
+                    'comment' => $logComment
+                ]);
+
+                DB::commit();
+
+            } else {
+                // ຖ້າມີການປະຕິເສດ (Reject) ຈາກຄັງເງິນສົດ (ຖ້າຕ້ອງການໃຫ້ມີ)
+                DB::rollBack();
+                return back()->with('error', 'ການດຳເນີນການບໍ່ຖືກຕ້ອງ.');
+            }
 
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກຂໍ້ມູນ: ' . $e->getMessage());
         }
 
-        // --- 5. ส่วนการส่ง Notification (อยู่นอก Transaction) ---
-        // 5.1 ดึงข้อมูลผู้สร้าง
-        $requester = $document->requester;
-
-        // 5.2 ส่ง Notification ไปหาผู้สร้าง (Requester) เสมอ
-        if ($requester) {
-            $requester->notify(new \App\Notifications\DocumentPaid($document));
-        }
-    
-        // 5.3 ถ้าผู้สร้างคือ Procurement_Staff, ให้แจ้งเตือนคนในแผนกจัดตั้งด้วย
-        if ($requester && $requester->role->name === 'Procurement_Staff') {
+        // --- 5. ສ່ວນການສົ່ງ Notification (ຢູ່ນອກ Transaction) ---
         
-            $orgDepartmentId = $document->department_id; // ID ของแผนกจัดตั้ง
+        if ($nextStatus === 'PENDING_ACCOUNTANT_VERIFICATION') {
+            // ກໍລະນີຕີໃບຖອນສຳເລັດ: ສົ່ງແຈ້ງເຕືອນໄປຫານາຍບັນຊີ (Accountant) ທຸກຄົນ
+            $accountants = \App\Models\User::whereHas('role', function ($q) {
+                $q->where('name', 'Accountant');
+            })->get();
 
-            // ค้นหา Staff ทุกคนในแผนกนั้น (ยกเว้นตัว Procurement_Staff เอง)
-            $departmentStaff = \App\Models\User::where('department_id', $orgDepartmentId)
+            foreach ($accountants as $accountant) {
+                $accountant->notify(new \App\Notifications\DocumentSubmitted($document));
+            }
+
+        } elseif ($nextStatus === 'PAID') {
+            // ກໍລະນີຈ່າຍເງິນສຳເລັດ: ສົ່ງແຈ້ງເຕືອນຫາ ຜູ້ສະເໜີ (Requester)
+            $requester = $document->requester;
+            if ($requester) {
+                $requester->notify(new \App\Notifications\DocumentPaid($document));
+            }
+
+            // ຖ້າຜູ້ສະເໜີແມ່ນ ຝ່າຍຈັດຊື້ (Procurement_Staff), ໃຫ້ແຈ້ງເຕືອນຄົນໃນພະແນກຈັດຕັ້ງນຳ
+            if ($requester && $requester->role->name === 'Procurement_Staff') {
+                $orgDepartmentId = $document->department_id;
+
+                $departmentStaff = \App\Models\User::where('department_id', $orgDepartmentId)
                     ->where('id', '!=', $requester->id)
                     ->whereHas('role', function ($q) { $q->where('name', 'Staff'); })
                     ->get();
-        
-            // (เราต้องไปปรับปรุง DocumentPaid Notification ให้รับ Custom Message)
-            $notificationForDept = new \App\Notifications\DocumentPaid(
-                $document, 
-                "ເອກະສານຂອງພະແນກທ່ານ(ສ້າງໂດຍຝ່າຍຈັດຊື້) ໄດ້ຮັບການຈ່າຍເງິນແລ້ວ"
-            );
-                                           
-            foreach ($departmentStaff as $staff) {
-                $staff->notify($notificationForDept);
+
+                $notificationForDept = new \App\Notifications\DocumentPaid(
+                    $document, 
+                    "ເອກະສານຂອງພະແນກທ່ານ (ສ້າງໂດຍຝ່າຍຈັດຊື້) ໄດ້ຮັບການຈ່າຍເງິນແລ້ວ."
+                );
+                                               
+                foreach ($departmentStaff as $staff) {
+                    $staff->notify($notificationForDept);
+                }
             }
         }
-        // --- จบส่วน Notification ---
-        // 6. Redirect (ถูกต้อง)
-        return redirect()->route('cashier.dashboard')->with('success', 'ຢືນຢັນການຈ່າຍເງິນສຳເລັດແລ້ວ.');
+
+        // 6. Redirect ກັບຄືນໜ້າ Dashboard
+        $successMessage = ($nextStatus === 'PAID') ? 'ຢືນຢັນການຈ່າຍເງິນສົດສຳເລັດແລ້ວ.' : 'ຢືນຢັນການຕີໃບຖອນ ແລະ ສົ່ງຕໍ່ສຳເລັດແລ້ວ.';
+        return redirect()->route('cashier.dashboard')->with('success', $successMessage);
     }
-    /*
-    public function confirmPayment(Document $document)
-    {
-        // 1. ກວດສອບສະຖານະປັດຈຸບັນ
-        if ($document->status !== 'READY_FOR_PAYMENT') {
-            return redirect()->route('cashier.dashboard')->with('error', 'ເອກະສານນີ້ໄດ້ຖືກດຳເນີນການໄປແລ້ວ');
-        }
-
-        // ຄົ້ນຫາ ແລະ ອັບເດດການແຈ້ງເຕືອນທີ່ກ່ຽວຂ້ອງກັບເອກະສານນີ້ ໃຫ້ເປັນ "ອ່ານແລ້ວ"
-        Auth::user()->unreadNotifications
-            ->where('data.document_id', $document->id)
-            ->markAsRead();
-            
-        // 2. ປ່ຽນສະຖານະເປັນ "ຈ່າຍແລ້ວ"
-        $document->status = 'PAID';
-        $document->save();
-
-        // 3. ບັນທຶກປະຫວັດ (Log)
-        $document->documentLogs()->create([
-            'user_id' => Auth::id(),
-            'action' => 'Payment Confirmed by Cashier',
-            'comment' => 'ດຳເນີນການຈ່າຍເງິນສຳເລັດ.'
-        ]);
-
-        $requester = $document->requester;
-        if ($requester) {
-            $requester->notify(new DocumentPaid($document));
-        }
-
-        // 4. ສົ່ງກັບໄປໜ້າ Dashboard ພ້ອມຂໍ້ຄວາມສຳເລັດ
-        return redirect()->route('cashier.dashboard')->with('success', 'ຢືນຢັນການຈ່າຍເງິນສຳເລັດແລ້ວ.');
-    }
-    */
+    
     public function approvedHistory(Request $request)
     {
         $this->authorize('viewAny', Document::class);
@@ -223,5 +227,24 @@ class CashDashboardController extends Controller
         
         // เราจะสร้าง View นี้ต่อไป
         return view('cashier.history.approved', compact('documents', 'departments', 'statuses'));
+    }
+
+    /**
+     * ສະແດງປະຫວັດເອກະສານທີ່ຄັງເງິນສົດເຄີຍຕີໃບຖອນແລ້ວ.
+     */
+    public function withdrawalSlipsHistory(Request $request)
+    {
+        // 1. ຄົ້ນຫາ ID ຂອງເອກະສານທັງໝົດທີ່ເຮົາເຄີຍຕີໃບຖອນ
+        $documentIds = \App\Models\DocumentLog::where('user_id', auth()->id())
+                                              ->where('action', 'Withdrawal Slip Created')
+                                              ->pluck('document_id');
+
+        // 2. ດຶງຂໍ້ມູນເອກະສານເຫຼົ່ານັ້ນມາສະແດງຜົນ
+        $documents = Document::whereIn('id', $documentIds)
+                               ->with('requester.department', 'documentType')
+                               ->latest('updated_at')
+                               ->paginate(15);
+
+        return view('cashier.history.withdrawal_slips', compact('documents'));
     }
 }

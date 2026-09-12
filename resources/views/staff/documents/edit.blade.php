@@ -10,7 +10,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900" x-data="{ documentTypeId: '{{ old('document_type_id', $document->document_type_id) }}' }">
                     
-                    {{-- แสดงเหตุผลที่ถูกปฏิเสธ --}}
+                    {{-- ສະແດງເຫດຜົນທີ່ຖືກປະຕິເສດ --}}
                     @if($document->status == 'REJECTED' && $document->rejected_reason)
                         <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                             <p class="font-bold">ເຫດຜົນທີ່ຖືກສົ່ງກັບມາແກ້ໄຂ:</p>

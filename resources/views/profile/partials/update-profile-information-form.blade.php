@@ -49,7 +49,7 @@
             @endif
         </div>
         <div class="mt-4">
-            <x-input-label for="role" :value="__('บทบาท (Role)')" />
+            <x-input-label for="role" :value="__('ບົດບາດ (Role)')" />
             <x-text-input id="role" type="text" class="mt-1 block w-full bg-gray-100" 
                       :value="auth()->user()->role->name ?? 'N/A'" disabled />
         </div>

@@ -65,9 +65,9 @@
                             @forelse ($document->documentItems as $item)
                                 <tr>
                                     <td class="px-6 py-4">{{ $item->item_description }}</td>
-                                    <td class="px-6 py-4 text-right">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 2) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->quantity, 0) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 0) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 0) }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -82,7 +82,7 @@
                                 <tfoot>
                                     <tr>
                                         <td colspan="3" class="px-6 py-4 text-right font-bold">ລວມທັງໝົດ:</td>
-                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 2) }}</td>
+                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 0) }}</td>
                                     </tr>
                                 </tfoot>
                             @endif
@@ -108,26 +108,38 @@
                     {{-- Section: Document History --}}
                     <x-document-history :logs="$document->documentLogs" />
                         
-                    {{-- ====================================================== --}}
+                    {{-- =================================================== --}}
                     {{-- ===== Section 4: Action Buttons (ສ່ວນທີ່ເພີ່ມໃໝ່) ===== --}}
-                    {{-- ====================================================== --}}
-                    <div class="mt-6 pt-4 border-t">
-                        <h3 class="text-lg font-medium mb-4">ການປະຕິບັດງານ</h3>
-                        <div class="flex items-center justify-end space-x-4">
-                            <a href="{{ route('cashier.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
+                    {{-- =================================================== --}}
+                    {{-- ປ່ຽນແທນສ່ວນ Action Buttons ໃນ show.blade.php ຂອງຄັງເງິນສົດ --}}
+                    @if(in_array($document->status, ['PENDING_CASHIER_WITHDRAWAL_SLIP', 'READY_FOR_PAYMENT']))
+                        <div class="mt-6 pt-4 border-t">
+                            <h3 class="text-lg font-medium mb-4">ການດຳເນີນການ</h3>
+                            <div class="flex items-center justify-end space-x-4">
+                                
+                                {{-- ປຸ່ມກັບຄືນ --}}
+                                <a href="{{ route('cashier.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
+                                    ກັບຄືນ
+                                </a>
+
+                                {{-- ຟອມຢືນຢັນການເຮັດວຽກ --}}
+                                <form action="{{ route('cashier.documents.process', $document->id) }}" method="POST" 
+                                      onsubmit="return confirm('{{ $document->status === 'PENDING_CASHIER_WITHDRAWAL_SLIP' ? 'ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການຢືນຢັນການຕີໃບຖອນເງິນນີ້?' : 'ທ່ານແນ່ໃຈບໍ່ວ່າໄດ້ດຳເນີນການຈ່າຍເງິນສົດສຳລັບເອກະສານນີ້ແລ້ວ?' }}')">
+                                    @csrf
+                                    <button type="submit" name="action" value="approve" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                        {{ $document->status === 'PENDING_CASHIER_WITHDRAWAL_SLIP' ? 'ຢືນຢັນການຕີໃບຖອນ' : 'ຢືນຢັນວ່າຈ່າຍເງິນແລ້ວ' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        {{-- ປຸ່ມກັບຄືນ ຖ້າເອກະສານກວດຜ່ານໄປແລ້ວ --}}
+                        <div class="mt-6 pt-4 border-t text-right">
+                            <a href="{{ url()->previous() }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
                                 ກັບຄືນ
                             </a>
-
-                            {{-- ຢືນຢັນການຈ່າຍເງິນ --}}
-                            <form action="{{ route('cashier.documents.confirmPayment', $document->id) }}" method="POST" onsubmit="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າໄດ້ດຳເນີນການຈ່າຍເງິນສຳລັບເອກະສານນີ້ແລ້ວ?')">
-                            <!--<form action="#" method="POST"> {{-- ເຮົາຈະມາໃສ່ action ນໍາຫຼັງ --}}-->
-                                @csrf
-                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                                        ຢືນຢັນວ່າຈ່າຍເງິນແລ້ວ
-                                    </button>
-                            </form>
                         </div>
-                    </div>
+                    @endif
 
                 </div>
             </div>

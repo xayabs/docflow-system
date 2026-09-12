@@ -43,7 +43,7 @@ class NotificationController extends Controller
         if ($notification) {
             // 2. ເຮັດເຄື່ອງໝາຍວ່າອ່ານແລ້ວ
             $notification->markAsRead();
-
+            
             // 3. ດືງ URL ຈາກຂໍ້ມູນ data ແລ້ວ Redirect ໄປ
             // ເຮົາບັນທຶກ URL ໄວ້ໃນ key 'url' ຕອນສ້າງ Notification
             return redirect($notification->data['url']);

@@ -67,27 +67,17 @@ Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
     // Route Group ສໍາຫຼັບ Staff
     Route::middleware('role:Staff')->prefix('staff')->name('staff.')->group(function () {
         Route::resource('documents', \App\Http\Controllers\DocumentController::class);
-
         Route::get('history/approved', [\App\Http\Controllers\DocumentController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\DocumentController::class, 'rejectedHistory'])->name('history.rejected');
-
         Route::get('documents/{document}/print', [\App\Http\Controllers\DocumentController::class, 'print'])->name('documents.print');
         Route::patch('documents/{document}/submit', [\App\Http\Controllers\DocumentController::class, 'submitDraft'])->name('documents.submit');
     });
 
     Route::middleware('role:Dean_Secretary')->prefix('secretary')->name('secretary.')->group(function () {
-        // Route ສຳລັບ Dashboard ຂອງເລຂາ
         Route::get('dashboard', [\App\Http\Controllers\Secretary\DashboardController::class, 'index'])->name('dashboard');
-    
-        // Route ສຳລັບໜ້າກວດສອບເອກະສານ
         Route::get('documents/{document}', [\App\Http\Controllers\Secretary\DashboardController::class, 'show'])->name('documents.show');
-    
-        // Route ສຳລັບການອະນຸມັດ (Approve)
         Route::post('documents/{document}/approve', [\App\Http\Controllers\Secretary\DashboardController::class, 'approve'])->name('documents.approve');
-    
-        // Route ສຳລັບການປະຕິເສດ (Reject)
         Route::post('documents/{document}/reject', [\App\Http\Controllers\Secretary\DashboardController::class, 'reject'])->name('documents.reject');
-
         Route::get('history/approved', [\App\Http\Controllers\Secretary\DashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\Secretary\DashboardController::class, 'rejectedHistory'])->name('history.rejected');
         Route::post('documents/{document}/process', [\App\Http\Controllers\Secretary\DashboardController::class, 'process'])->name('documents.process');
@@ -95,120 +85,77 @@ Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
 
     // Route Group ສຳລັບ Finance Preparer
     Route::middleware('role:Finance_Preparer')->prefix('finance/preparer')->name('finance.preparer.')->group(function () {
-        // Route ສຳລັບ Dashboard ຝ່າຍກະກຽມເອກະສານຈົດຈ່າຍ
         Route::get('dashboard', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'index'])->name('dashboard');
-
-        // Route ສຳລັບໜ້າກວດສອບເອກະສານ
         Route::get('documents/{document}', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'show'])->name('documents.show');
-    
-        // Route ສຳລັບການອະນຸມັດ (Approve)
         Route::post('documents/{document}/approve', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'approve'])->name('documents.approve');
-    
-        // Route ສຳລັບການປະຕິເສດ (Reject)
         Route::post('documents/{document}/reject', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'reject'])->name('documents.reject');
-
         Route::get('history/approved', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'rejectedHistory'])->name('history.rejected');
-        
         Route::post('documents/{document}/process', [\App\Http\Controllers\Finance\PreparerDashboardController::class, 'process'])->name('documents.process');
     });
 
     Route::middleware('role:Accountant')->prefix('accountant')->name('accountant.')->group(function () {
-        // Route ສຳລັບ Dashboard ຝ່າຍບັນຊີ
         Route::get('dashboard', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'index'])->name('dashboard');
-
-        // Route ສຳລັບໜ້າກວດສອບເອກະສານ
         Route::get('documents/{document}', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'show'])->name('documents.show');
-    
-        // Route ສຳລັບການອະນຸມັດ (Approve)
         Route::post('documents/{document}/approve', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'approve'])->name('documents.approve');
-    
-        // Route ສຳລັບການປະຕິເສດ (Reject)
         Route::post('documents/{document}/reject', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'reject'])->name('documents.reject');
-
         Route::get('history/approved', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'rejectedHistory'])->name('history.rejected');
         Route::post('documents/{document}/process', [\App\Http\Controllers\Accountant\AccDashboardController::class, 'process'])->name('documents.process');
     });
 
     Route::middleware('role:Vice_Dean')->prefix('vicedean')->name('vicedean.')->group(function () {
-        // Route ສຳລັບ Dashboard ຝ່າຍບັນຊີ
         Route::get('dashboard', [\App\Http\Controllers\ViceDean\VDDashboardController::class, 'index'])->name('dashboard');
-
-        // Route ສຳລັບໜ້າກວດສອບເອກະສານ
         Route::get('documents/{document}', [\App\Http\Controllers\ViceDean\VDDashboardController::class, 'show'])->name('documents.show');
-    
-        // Route ສຳລັບການອະນຸມັດ (Approve)
         Route::post('documents/{document}/approve', [\App\Http\Controllers\ViceDean\VDDashboardController::class, 'approve'])->name('documents.approve');
-    
-        // Route ສຳລັບການປະຕິເສດ (Reject)
         Route::post('documents/{document}/reject', [\App\Http\Controllers\ViceDean\VDDashboardController::class, 'reject'])->name('documents.reject');
-
         Route::get('history/approved', [\App\Http\Controllers\ViceDean\VDDashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\ViceDean\VDDashboardController::class, 'rejectedHistory'])->name('history.rejected');
+        Route::get('all-documents', [VDDashboardController::class, 'allDocuments'])->name('documents.all');
     });
 
     Route::middleware('role:Head_of_Finance')->prefix('headfinance')->name('headfinance.')->group(function () {
-        // Route ສຳລັບ Dashboard ຝ່າຍບັນຊີ
         Route::get('dashboard', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'index'])->name('dashboard');
-
-        // Route ສຳລັບໜ້າກວດສອບເອກະສານ
         Route::get('documents/{document}', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'show'])->name('documents.show');
-    
-        // Route ສຳລັບການອະນຸມັດ (Approve)
         Route::post('documents/{document}/approve', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'approve'])->name('documents.approve');
-    
-        // Route ສຳລັບການປະຕິເສດ (Reject)
-        //Route::post('documents/{document}/reject', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'reject'])->name('documents.reject');
-
         Route::get('history/approved', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'rejectedHistory'])->name('history.rejected');
         Route::post('documents/{document}/process', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'process'])->name('documents.process');
         Route::post('documents/{document}/return', [\App\Http\Controllers\HeadFinance\HFDashboardController::class, 'returnToAccountant'])->name('documents.return');
+        Route::get('all-documents', [HFDashboardController::class, 'allDocuments'])->name('documents.all');
     });
 
     Route::middleware('role:Dean')->prefix('dean')->name('dean.')->group(function () {
-        // Route ສຳລັບ Dashboard ຄະນະບໍດີ
         Route::get('dashboard', [\App\Http\Controllers\Dean\DeanDashboardController::class, 'index'])->name('dashboard');
-
-        // Route ສຳລັບໜ້າກວດສອບເອກະສານ
         Route::get('documents/{document}', [\App\Http\Controllers\Dean\DeanDashboardController::class, 'show'])->name('documents.show');
-    
-        // Route ສຳລັບການອະນຸມັດ (Approve)
         Route::post('documents/{document}/approve', [\App\Http\Controllers\Dean\DeanDashboardController::class, 'approve'])->name('documents.approve');
-    
-        // Route ສຳລັບການປະຕິເສດ (Reject)
         Route::post('documents/{document}/reject', [\App\Http\Controllers\Dean\DeanDashboardController::class, 'reject'])->name('documents.reject');
-
         Route::get('history/approved', [\App\Http\Controllers\Dean\DeanDashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\Dean\DeanDashboardController::class, 'rejectedHistory'])->name('history.rejected');
+        Route::get('all-documents', [DeanDashboardController::class, 'allDocuments'])->name('documents.all');
     });
 
     // Route Group ສໍາຫຼັບ Cashier
     Route::middleware('role:Cashier')->prefix('cashier')->name('cashier.')->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Cashier\CashDashboardController::class, 'index'])->name('dashboard');
         Route::get('documents/{document}', [\App\Http\Controllers\Cashier\CashDashboardController::class, 'show'])->name('documents.show');
-        Route::post('documents/{document}/confirm-payment', [\App\Http\Controllers\Cashier\CashDashboardController::class, 'confirmPayment'])->name('documents.confirmPayment');
-
+        Route::post('documents/{document}/process', [CashDashboardController::class, 'process'])->name('documents.process');
         Route::get('history/approved', [\App\Http\Controllers\Cashier\CashDashboardController::class, 'approvedHistory'])->name('history.approved');
+        Route::get('history/withdrawal-slips', [CashDashboardController::class, 'withdrawalSlipsHistory'])->name('history.withdrawalSlips');
     });
 
     Route::middleware('role:Procurement_Staff')->prefix('procurement')->name('procurement.')->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'dashboard'])->name('dashboard');
         Route::get('documents/{document}', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'show'])->name('documents.show');
-
         // ເຮົາຈະສ້າງ Route ສຳລັບ Action ຕ່າງໆຢູ່ບ່ອນນີ້
         Route::post('documents/{document}/start-process', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'startProcess'])->name('documents.startProcess');
         Route::post('documents/{document}/complete-purchase', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'completePurchase'])->name('documents.completePurchase');
         // ປ່ຽນເປັນ GET ເພື່ອຄວາມງ່າຍດາຍໃນການສ້າງລິ້ງ
         Route::get('documents/{document}/create-payment-request', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'createPaymentRequest'])->name('documents.createPaymentRequest.form');
         Route::post('documents/store-payment-request', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'storePaymentRequest'])->name('documents.storePaymentRequest');
-
         Route::get('history/approved', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'rejectedHistory'])->name('history.rejected');
-
         Route::get('documents/{document}/print', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'print'])->name('documents.print');
-
          Route::get('documents/{document}/edit', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'edit'])->name('documents.edit');
         Route::patch('documents/{document}', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'update'])->name('documents.update');
         Route::patch('documents/{document}/submit', [\App\Http\Controllers\Procurement\ProcDashboardController::class, 'submitDraft'])->name('documents.submit');

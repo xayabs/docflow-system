@@ -35,7 +35,7 @@
                             @if($document->document_type_id != 2)
                             <div>
                                 <dt class="text-base font-medium text-gray-500">ມູນຄ່າລວມ</dt>
-                                <dd class="mt-1 text-sm text-gray-900 font-bold">{{ number_format($document->total_amount, 2) }} KIP</dd>
+                                <dd class="mt-1 text-sm text-gray-900 font-bold">{{ number_format($document->total_amount, 0) }} KIP</dd>
                             </div>
                             @endif
                         </div>
@@ -58,16 +58,16 @@
                                 @foreach ($document->documentItems as $item)
                                     <tr>
                                         <td class="px-6 py-4">{{ $item->item_description }}</td>
-                                        <td class="px-6 py-4 text-right">{{ $item->quantity }}</td>
-                                        <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 2) }}</td>
-                                        <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 2) }}</td>
+                                        <td class="px-6 py-4 text-right">{{ number_format($item->quantity, 0) }}</td>
+                                        <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 0) }}</td>
+                                        <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 0) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="3" class="px-6 py-4 text-right font-bold">ລວມທັງໝົດ:</td>
-                                    <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 2) }}</td>
+                                    <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 0) }}</td>
                                 </tr>
                             </tfoot>
                         </table>

@@ -73,6 +73,51 @@ class VDDashboardController extends Controller
         return view('vicedean.documents.show', compact('document', 'privateNotes'));
     }
 
+    // ເພີ່ມໂຄດນີ້ໃສ່ໃນ Controller ຂອງທັງ 3 ບົດບາດ
+    public function allDocuments(Request $request)
+    {
+        // 1. ດຶງຂໍ້ມູນເອກະສານທັງໝົດ ທີ່ບໍ່ແມ່ນສະບັບຮ່າງ (DRAFT)
+        $query = Document::where('status', '!=', 'DRAFT');
+
+        // 2. ຮອງຮັບການຄົ້ນຫາ ແລະ ກັ່ນຕອງຂໍ້ມູນ (ເອີ້ນໃຊ້ຟອມຄົ້ນຫາໄດ້ຄືກັນ)
+        if ($request->filled('doc_code')) {
+            $query->where('document_code', 'like', '%' . $request->doc_code . '%');
+        }
+        if ($request->filled('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $documents = $query->with('requester.department', 'documentType')
+                           ->latest()
+                           ->paginate(15)
+                           ->withQueryString();
+
+        $departments = \App\Models\Department::orderBy('name')->get();
+        
+        // ດຶງສະຖານະທັງໝົດຍົກເວັ້ນສະບັບຮ່າງ ເພື່ອມາເປັນຕົວເລືອກກັ່ນຕອງ
+        $statuses = get_all_statuses_translation();
+        unset($statuses['DRAFT']);
+
+        // ສົ່ງໄປຫາ View ຂອງແຕ່ລະບົດບາດ:
+        // - ສຳລັບ Vice_Dean: 'vicedean.documents.all'
+        $viewPath = '';
+        $userRole = auth()->user()->role->name;
+        if ($userRole === 'Dean') $viewPath = 'dean.documents.all';
+        elseif ($userRole === 'Vice_Dean') $viewPath = 'vicedean.documents.all';
+        elseif ($userRole === 'Head_of_Finance') $viewPath = 'headfinance.documents.all';
+
+        return view($viewPath, compact('documents', 'departments', 'statuses'));
+    }
+
     /**
     * Approve the document and move it to the next step in the workflow.
     */
@@ -194,59 +239,6 @@ class VDDashboardController extends Controller
 
         return redirect()->route('vicedean.dashboard')->with('success', 'ການສົ່ງເອກະສານກັບສຳເລັດແລ້ວ.');
     }
-    /*
-    public function reject(Request $request, Document $document)
-    {
-        // 1. ກວດສອບຄວາມຖືກຕ້ອງຂອງຂໍ້ມູນທີ່ສົ່ງມາ (ເຫດຜົນ)
-        $request->validate([
-            'rejection_reason' => 'required|string|min:10',
-        ]);
-    
-        // 2. ກວດສອບສະຖານະເອກະສານ
-        if ($document->status !== 'PENDING_VICE_DEAN_APPROVAL') {
-            return back()->with('error', 'ເອກະສານນີ້ບໍ່ໄດ້ຢູ່ໃນສະຖານະທີ່ລໍຖ້າການກວດສອບ.');
-        }
-
-        Auth::user()->unreadNotifications
-            ->where('data.document_id', $document->id)
-            ->markAsRead();
-
-        // 3. บันทึกสถานะปัจจุบัน (ก่อนที่จะเปลี่ยนเป็น REJECTED)
-        $document->status_before_rejected = $document->status;
-        
-        // 4. ປ່ຽນສະຖານະເອກະສານເປັນ REJECTED ແລະ ບັນທຶກເຫດຜົນ
-        $document->status = 'REJECTED';
-        $document->rejected_reason = $request->input('rejection_reason');
-        $document->save();
-    
-        // 5. ບັນທຶກປະຫວັດການດຳເນີນການ (Log)
-        $document->documentLogs()->create([
-            'user_id' => Auth::id(),
-            'action' => 'Rejected by Vice Dean',
-            'comment' => $request->input('rejection_reason')
-        ]);
-
-        // 6. แจ้งเตือนผู้สร้าง (Requester) - เหมือนเดิม
-        $requester = $document->requester;
-        if ($requester) {
-            // (แนะนำให้สร้าง Notification Class ใหม่: DocumentRejected)
-            $requester->notify(new \App\Notifications\DocumentRejected($document, auth()->user()));
-        }
-
-        // 7. ค้นหาผู้ใช้ใน Role ที่เกี่ยวข้อง
-        $concernedRoles = ['Dean_Secretary','Accountant', 'Finance_Preparer'];
-        $recipients = \App\Models\User::whereHas('role', function ($query) use ($concernedRoles) {
-            $query->whereIn('name', $concernedRoles);
-        })->get();
-
-        // 8. ส่ง Notification ไปให้ผู้รับทุกคน
-        foreach ($recipients as $recipient) {
-            $recipient->notify(new DocumentWasRejectedToApprover($document, auth()->user()));
-        }
-
-        // 9. ສົ່ງກັບໄປໜ້າ Dashboard ພ້ອມຂໍ້ຄວາມແຈ້ງເຕືອນ
-        return redirect()->route('vicedean.dashboard')->with('success', 'ປະຕິເສດເອກະສານສຳເລັດແລ້ວ.');
-    }*/
 
     public function approvedHistory(Request $request)
     {

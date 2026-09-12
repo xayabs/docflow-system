@@ -643,10 +643,11 @@ class ProcDashboardController extends Controller
     {
         $this->authorize('view', $document); // ໃຊ້ Policy ເພື່ອກວດສອບສິດ
         $document->load('documentType', 'documentItems', 'requester.department');
-        $fileName = 'document_' . $document->document_code . '.pdf';
+        //$fileName = 'document_' . $document->document_code . '.pdf';
     
         // ເຮົາຈະສ້າງ View ນີ້ຕໍ່ໄປ
-        $pdf = PDF::loadView('documents.print.template', compact('document'));
-        return $pdf->stream($fileName);
+        //$pdf = PDF::loadView('documents.print.template', compact('document'));
+        //return $pdf->stream($fileName);
+        return view('documents.print.template', compact('document'));
     }
 }

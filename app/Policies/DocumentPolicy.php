@@ -34,54 +34,69 @@ class DocumentPolicy
     {
         $userRole = $user->role->name;
 
-        // --- เงื่อนไขพิเศษ ---
+        // --- 1. ເງື່ອນໄຂພິເສດ (ກວດສອບກ່ອນສະເໝີ) ---
 
-        // 1. Admin สามารถดูได้ทุกอย่าง
-        if ($user->role->name === 'System_Admin') {
+        // Admin ສາມາດເບິ່ງໄດ້ທຸກຢ່າງ
+        if ($userRole === 'System_Admin') {
             return true;
         }
 
-        // 2. ผู้สร้าง (Requester) สามารถดูเอกสารของตัวเองได้เสมอ
+        // ຜູ້ສ້າງເອກະສານ (Requester) ສາມາດເບິ່ງເອກະສານຂອງຕົນເອງໄດ້ສະເໝີ
         if ($user->id === $document->requester_id) {
             return true;
         }
-    
-        // --- เงื่อนไขสำหรับผู้ร่วมภาคส่วน ---
 
-        // 3. ถ้าผู้ใช้เป็น Staff, ให้ตรวจสอบว่าเป็นเอกสารในภาคส่วนของตนเองหรือไม่
-        /*
-        if ($user->role->name === 'Staff') {
-            return $user->department_id === $document->department_id;
-        }*/
+        // ===== ເພີ່ມຈຸດນີ້: ໃຫ້ຜູ້ບໍລິຫານສາມາດເຂົ້າເບິ່ງເອກະສານທັງໝົດໄດ້ (ຍົກເວັ້ນສະບັບຮ່າງ DRAFT) =====
+        if (in_array($userRole, ['Dean', 'Vice_Dean', 'Head_of_Finance'])) {
+            return $document->status !== 'DRAFT';
+        }
+        // ===================================================================================
 
-        if ($user->role->name === 'Staff') {
-        // เงื่อนไข 1: เป็นเอกสารในภาคส่วนของตัวเอง (เหมือนเดิม)
+
+        // --- 2. ເງື່ອນໄຂສຳລັບພະນັກງານປົກກະຕິ (Staff) ---
+        if ($userRole === 'Staff') {
+            // ເງື່ອນໄຂ 2.1: ເປັນເອກະສານໃນພາກສ່ວນຂອງຕົນເອງ
             if ($user->department_id === $document->department_id) {
                 return true;
             }
 
-            // เงื่อนไข 2 (ใหม่): ถ้าผู้ใช้สังกัดแผนกจัดตั้ง, 
-            // และเอกสารกำลังอยู่ในกระบวนการของฝ่ายจัดซื้อ, ให้ดูได้
-            if ($user->department_id == 6) { // สมมติว่า 6 คือ ID ของแผนกจัดตั้ง
+            // ເງື່ອນໄຂ 2.2: ຫາກສັງກັດພະແນກຈັດຕັ້ງ (ID = 6) ແລະ ເອກະສານກຳລັງຢູ່ໃນຂັ້ນຕອນການຈັດຊື້
+            /*if ($user->department_id == 6) {
+                // ກ. ເບິ່ງເອກະສານຈັດຊື້ທີ່ກຳລັງດຳເນີນການ
                 if (in_array($document->status, [
                     'PENDING_PROCUREMENT_EVALUATION',
                     'PROCUREMENT_IN_PROGRESS',
                     'PURCHASE_COMPLETE_PENDING_PAYMENT',
                 ])) {
                     return true;
+                }*/
+            if ($user->department_id == 6) {
+                // อนุญาตให้ดูเอกสาร "จัดซื้อ" (ID=2) ได้ทั้งหมด ไม่ว่าจะสถานะใด
+                // (เพราะเมื่อเป็นเอกสารจัดซื้อ, มันจะต้องเกี่ยวพันกับแผนกจัดตั้งเสมอ)
+                if ($document->document_type_id == 2) {
+                    return true;
+                }
+                // ຂ. (ເພີ່ມໃໝ່) ເບິ່ງເອກະສານ "ຂໍຖອນເງິນ" ທີ່ສ້າງໂດຍຝ່າຍຈັດຊື້ ໄດ້ທຸກສະຖານະ
+                /*if ($document->document_type_id == 1 && $document->parent_document_id !== null && $document->department_id == 6) {
+                    return true; 
+                }*/
+                // อนุญาตให้ดูเอกสาร "ขอถอนเงิน" (ID=1) ที่สร้างต่อเนื่องมาจากการจัดซื้อ
+                if ($document->document_type_id == 1 && $document->parent_document_id !== null) {
+                    return true; 
                 }
             }
         }
-    
-        // --- เงื่อนไขสำหรับผู้ตรวจสอบ (Approvers) ---
 
-        // 4. ตรวจสอบว่าผู้ใช้มีสิทธิ์ดูเอกสารในสถานะปัจจุบันหรือไม่
+
+        // --- 3. ເງື່ອນໄຂສຳລັບຜູ້ກວດສອບທີ່ກຳລັງດຳເນີນການ (Active Approvers) ---
         $permissions = [
             'PENDING_SECRETARY_REVIEW' => ['Dean_Secretary'],
             'PENDING_FINANCE_PREPARER_REVIEW' => ['Finance_Preparer'],
             'PENDING_ACCOUNTANT_BUDGET_CHECK' => ['Accountant'],
             'PENDING_VICE_DEAN_APPROVAL' => ['Vice_Dean'],
+            'PENDING_ACCOUNTANT_POSTING' => ['Accountant'],
             'PENDING_FINANCE_HEAD_APPROVAL' => ['Head_of_Finance'],
+            'PENDING_FINANCE_HEAD_VERIFICATION' => ['Head_of_Finance'],
             'PENDING_DEAN_FINAL_APPROVAL' => ['Dean'],
             'PENDING_DEAN_APPROVAL' => ['Dean', 'Vice_Dean'],
             'READY_FOR_PAYMENT' => ['Cashier'],
@@ -91,20 +106,20 @@ class DocumentPolicy
         ];
 
         if (array_key_exists($document->status, $permissions)) {
-            return in_array($user->role->name, $permissions[$document->status]);
+            return in_array($userRole, $permissions[$document->status]);
         }
-    
-        // --- เงื่อนไขสุดท้าย ---
-    
-        // 5. ถ้าเอกสารจบกระบวนการแล้ว (PAID, REJECTED, COMPLETED)
-        // อนุญาตให้ผู้ที่ "สังกัดภาคส่วนเดียวกับเอกสาร" สามารถกลับมาดูได้
+
+
+        // --- 4. ເງື່ອນໄຂສຸດທ້າຍ: ສຳລັບເອກະສານທີ່ຈົບຂະບວນການແລ້ວ ---
+        // ຫາກເອກະສານຈົບຂະບວນການແລ້ວ (PAID, REJECTED, COMPLETED)
         if (in_array($document->status, ['PAID', 'REJECTED', 'COMPLETED'])) {
-            if ($user->department_id === $document->department_id) {
+            // ອະນຸຍາດໃຫ້ ຜູ້ຮ່ວມພາກສ່ວນ, ນາຍບັນຊີ, ແລະ ຄັງເງິນສົດ ສາມາດກັບມາເບິ່ງຄືນໄດ້ (ເພື່ອກວດສອບປະຫວັດ)
+            if ($user->department_id === $document->department_id || in_array($userRole, ['Accountant', 'Cashier'])) {
                 return true;
             }
         }
-    
-        // ถ้าไม่เข้าเงื่อนไขใดๆ เลย, ไม่อนุญาต
+
+        // ຫາກບໍ່ເຂົ້າເງື່ອນໄຂໃດເລີຍ, ແມ່ນບໍ່ມີສິດເຂົ້າເບິ່ງ
         return false;
     }
 

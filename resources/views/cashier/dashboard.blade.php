@@ -46,7 +46,13 @@
                                     <td class="px-6 py-4 font-semibold">{{ number_format($document->total_amount, 2) }} KIP</td>
                                     <td class="px-6 py-4">{{ $document->updated_at->format('d/m/Y H:i') }}</td>
                                     <td class="px-6 py-4 text-right">
-                                        <a href="{{ route('cashier.documents.show', $document->id) }}" class="text-indigo-600 hover:text-indigo-900">ເບິ່ງ ແລະ ຢືນຢັນການຈ່າຍເງິນ</a>
+                                        <a href="{{ route('cashier.documents.show', $document->id) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">
+                                            @if($document->status === 'PENDING_CASHIER_WITHDRAWAL_SLIP')
+                                                ເບິ່ງ ແລະ ຢືນຢັນການຕີໃບຖອນ
+                                            @else
+                                                ເບິ່ງ ແລະ ຢືນຢັນການຈ່າຍເງິນ
+                                            @endif
+                                        </a>
                                     </td>
                                 </tr>
                             @empty

@@ -6,11 +6,47 @@ if (!function_exists('translateStatus')) {
         $translations = [
             'DRAFT' => 'ສະບັບຮ່າງ',
             'PENDING_SECRETARY_REVIEW' => 'ລໍຖ້າເລຂາກວດສອບ',
+            'PENDING_FINANCE_PREPARER_REVIEW' => 'ລໍຖ້າຝ່າຍກະກຽມເອກະສານການເງິນກວດສອບ',
+            'PENDING_ACCOUNTANT_BUDGET_CHECK' => 'ລໍຖ້ານາຍບັນຊີກວດສອບງົບ',
+            'PENDING_ACCOUNTANT_POSTING' => 'ລໍຖ້ານາຍບັນຊີລົງບັນຊີ',
+            'PENDING_VICE_DEAN_APPROVAL' => 'ລໍຖ້າຮອງຫົວໜ້າຄະນະວິຊາອະນຸມັດ',
+            
+            // ===== ເພີ່ມ 3 ສະຖານະໃໝ່ນີ້ເຂົ້າໄປ =====
+            'PENDING_CASHIER_WITHDRAWAL_SLIP' => 'ລໍຖ້າຄັງເງິນສົດຕີໃບຖອນ',
+            'PENDING_ACCOUNTANT_VERIFICATION' => 'ລໍຖ້ານາຍບັນຊີເຊັນຢັ້ງຢືນໃບຖອນ',
+            'PENDING_FINANCE_HEAD_VERIFICATION' => 'ລໍຖ້າຫົວໜ້າການເງິນເຊັນຢັ້ງຢືນໃບຖອນ',
+            // ===================================
+
+            'PENDING_FINANCE_HEAD_APPROVAL' => 'ລໍຖ້າຫົວໜ້າການເງິນອະນຸມັດ',
+            'PENDING_DEAN_FINAL_APPROVAL' => 'ລໍຖ້າຫົວໜ້າຄະນະວິຊາອະນຸມັດຈ່າຍ',
+            'READY_FOR_PAYMENT' => 'ພ້ອມຈ່າຍ',
+            'PAID' => 'ຈ່າຍເງິນແລ້ວ',
+            'REJECTED' => 'ຖືກປະຕິເສດ',
+            'PENDING_DEAN_APPROVAL' => 'ລໍຖ້າຫົວໜ້າຄະນະວິຊາອະນຸມັດຫຼັກການ',
+            'PENDING_PROCUREMENT_EVALUATION' => 'ລໍຖ້າພະແນກຈັດຕັ້ງປະເມີນລາຄາ',
+            'PROCUREMENT_IN_PROGRESS' => 'ກຳລັງຈັດຊື້',
+            'PURCHASE_COMPLETE_PENDING_PAYMENT' => 'ຈັດຊື້/ສ້ອມແປງສຳເລັດ, ລໍຖ້າຖອນເງິນ',
+            'COMPLETED' => 'ສຳເລັດສົມບູນ',
+        ];
+
+        return $translations[$status] ?? $status;
+    }
+}
+
+/*if (!function_exists('translateStatus')) {
+    function translateStatus($status)
+    {
+        $translations = [
+            'DRAFT' => 'ສະບັບຮ່າງ',
+            'PENDING_SECRETARY_REVIEW' => 'ລໍຖ້າເລຂາກວດສອບ',
             'PENDING_FINANCE_PREPARER_REVIEW' => 'ລໍຖ້າຝ່າຍການເງິນກວດສອບ',
             'PENDING_ACCOUNTANT_BUDGET_CHECK' => 'ລໍຖ້ານາຍບັນຊີກວດສອບງົບ',
             'PENDING_VICE_DEAN_APPROVAL' => 'ລໍຖ້າຮອງຄະນະບໍດີອະນຸມັດ',
             'PENDING_ACCOUNTANT_POSTING' => 'ລໍຖ້ານາຍບັນຊີລົງບັນຊີ',
-            'PENDING_FINANCE_HEAD_APPROVAL' => 'ລໍຖ້າຫົວໜ້າການເງິນອະນຸມັດ',
+            'PENDING_FINANCE_HEAD_APPROVAL' => 'ລໍຖ້າຫົວໜ້າພະແນກການເງິນກວດສອບຄວາມຖືກຕ້ອງ',
+            'PENDING_CASHIER_WITHDRAWAL_SLIP' => 'ລໍຖ້າຄັງເງິນສົດຕີໃບຖອນ',
+            'PENDING_ACCOUNTANT_VERIFICATION' => 'ລໍຖ້ານາຍບັນຊີເຊັນຢັ້ງຢືນໃບຖອນ',
+            'PENDING_FINANCE_HEAD_VERIFICATION' => 'ລໍຖ້າຫົວໜ້າພະແນກການເງິນເຊັນຢັ້ງຢືນໃບຖອນ',
             'PENDING_DEAN_FINAL_APPROVAL' => 'ລໍຖ້າຄະນະບໍດີອະນຸມັດຈ່າຍ',
             'READY_FOR_PAYMENT' => 'ພ້ອມຈ່າຍ',
             'PAID' => 'ຈ່າຍເງິນແລ້ວ',
@@ -25,7 +61,7 @@ if (!function_exists('translateStatus')) {
 
         return $translations[$status] ?? $status;
     }
-}
+}*/
 
 if (!function_exists('get_all_statuses_translation')) {
     /**
@@ -39,13 +75,20 @@ if (!function_exists('get_all_statuses_translation')) {
             'PENDING_FINANCE_PREPARER_REVIEW' => 'ລໍຖ້າຝ່າຍການເງິນກວດສອບ',
             'PENDING_ACCOUNTANT_BUDGET_CHECK' => 'ລໍຖ້ານາຍບັນຊີກວດສອບງົບ',
             'PENDING_ACCOUNTANT_POSTING' => 'ລໍຖ້ານາຍບັນຊີລົງບັນຊີ',
-            'PENDING_VICE_DEAN_APPROVAL' => 'ລໍຖ້າຮອງຄະນະບໍດີອະນຸມັດ',
+            'PENDING_VICE_DEAN_APPROVAL' => 'ລໍຖ້າຮອງຫົວໜ້າຄະນະວິຊາອະນຸມັດ',
+            
+            // ===== ເພີ່ມ 3 ສະຖານະໃໝ່ນີ້ເຂົ້າໄປ =====
+            'PENDING_CASHIER_WITHDRAWAL_SLIP' => 'ລໍຖ້າຄັງເງິນສົດຕີໃບຖອນ',
+            'PENDING_ACCOUNTANT_VERIFICATION' => 'ລໍຖ້ານາຍບັນຊີເຊັນຢັ້ງຢືນໃບຖອນ',
+            'PENDING_FINANCE_HEAD_VERIFICATION' => 'ລໍຖ້າຫົວໜ້າການເງິນເຊັນຢັ້ງຢືນໃບຖອນ',
+            // ===================================
+
             'PENDING_FINANCE_HEAD_APPROVAL' => 'ລໍຖ້າຫົວໜ້າການເງິນອະນຸມັດ',
-            'PENDING_DEAN_FINAL_APPROVAL' => 'ລໍຖ້າຄະນະບໍດີອະນຸມັດຈ່າຍ',
+            'PENDING_DEAN_FINAL_APPROVAL' => 'ລໍຖ້າຫົວໜ້າຄະນະວິຊາອະນຸມັດຈ່າຍ',
             'READY_FOR_PAYMENT' => 'ພ້ອມຈ່າຍ',
             'PAID' => 'ຈ່າຍເງິນແລ້ວ',
             'REJECTED' => 'ຖືກປະຕິເສດ',
-            'PENDING_DEAN_APPROVAL' => 'ລໍຖ້າຄະນະບໍດີອະນຸມັດຫຼັກການ',
+            'PENDING_DEAN_APPROVAL' => 'ລໍຖ້າຫົວໜ້າຄະນະວິຊາອະນຸມັດຫຼັກການ',
             'PENDING_PROCUREMENT_EVALUATION' => 'ລໍຖ້າພະແນກຈັດຕັ້ງປະເມີນລາຄາ',
             'PROCUREMENT_IN_PROGRESS' => 'ກຳລັງຈັດຊື້',
             'PURCHASE_COMPLETE_PENDING_PAYMENT' => 'ຈັດຊື້ສຳເລັດ, ລໍຖ້າຖອນເງິນ',
@@ -53,6 +96,29 @@ if (!function_exists('get_all_statuses_translation')) {
         ];
     }
 }
+/*if (!function_exists('get_all_statuses_translation')) {
+    function get_all_statuses_translation()
+    {
+        return [
+            'DRAFT' => 'ສະບັບຮ່າງ',
+            'PENDING_SECRETARY_REVIEW' => 'ລໍຖ້າເລຂາກວດສອບ',
+            'PENDING_FINANCE_PREPARER_REVIEW' => 'ລໍຖ້າຝ່າຍການເງິນກວດສອບ',
+            'PENDING_ACCOUNTANT_BUDGET_CHECK' => 'ລໍຖ້ານາຍບັນຊີກວດສອບງົບ',
+            'PENDING_ACCOUNTANT_POSTING' => 'ລໍຖ້ານາຍບັນຊີລົງບັນຊີ',
+            'PENDING_VICE_DEAN_APPROVAL' => 'ລໍຖ້າຮອງຫົວໜ້າຄະນະວິຊາອະນຸມັດ',
+            'PENDING_FINANCE_HEAD_APPROVAL' => 'ລໍຖ້າຫົວໜ້າການເງິນອະນຸມັດ',
+            'PENDING_DEAN_FINAL_APPROVAL' => 'ລໍຖ້າຫົວໜ້າຄະນະວິຊາອະນຸມັດຈ່າຍ',
+            'READY_FOR_PAYMENT' => 'ພ້ອມຈ່າຍ',
+            'PAID' => 'ຈ່າຍເງິນແລ້ວ',
+            'REJECTED' => 'ຖືກປະຕິເສດ',
+            'PENDING_DEAN_APPROVAL' => 'ລໍຖ້າຫົວໜ້າຄະນະວິຊາອະນຸມັດຫຼັກການ',
+            'PENDING_PROCUREMENT_EVALUATION' => 'ລໍຖ້າພະແນກຈັດຕັ້ງປະເມີນລາຄາ',
+            'PROCUREMENT_IN_PROGRESS' => 'ກຳລັງຈັດຊື້',
+            'PURCHASE_COMPLETE_PENDING_PAYMENT' => 'ຈັດຊື້ສຳເລັດ, ລໍຖ້າຖອນເງິນ',
+            'COMPLETED' => 'ສຳເລັດສົມບູນ',
+        ];
+    }
+}*/
 
 if (!function_exists('getStatusColorClass')) {
     function getStatusColorClass($status)
@@ -164,6 +230,9 @@ if (!function_exists('getRoleNameFromStatus')) {
             'PENDING_ACCOUNTANT_POSTING' => 'Accountant',
             'PENDING_VICE_DEAN_APPROVAL' => 'Vice_Dean',
             'PENDING_FINANCE_HEAD_APPROVAL' => 'Head_of_Finance',
+            'PENDING_CASHIER_WITHDRAWAL_SLIP' => 'Cashier',
+            'PENDING_ACCOUNTANT_VERIFICATION' => 'Accountant',
+            'PENDING_FINANCE_HEAD_VERIFICATION' => 'Head_of_Finance',
             'PENDING_DEAN_FINAL_APPROVAL' => 'Dean',
             'PENDING_DEAN_APPROVAL' => 'Dean',
             'READY_FOR_PAYMENT' => 'Cashier',

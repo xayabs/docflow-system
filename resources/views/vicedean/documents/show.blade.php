@@ -75,9 +75,9 @@
                             @forelse ($document->documentItems as $item)
                                 <tr>
                                     <td class="px-6 py-4">{{ $item->item_description }}</td>
-                                    <td class="px-6 py-4 text-right">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 2) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->quantity, 0) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 0) }}</td>
+                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 0) }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -92,7 +92,7 @@
                                 <tfoot>
                                     <tr>
                                         <td colspan="3" class="px-6 py-4 text-right font-bold">ລວມທັງໝົດ:</td>
-                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 2) }}</td>
+                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 0) }}</td>
                                     </tr>
                                 </tfoot>
                             @endif
@@ -214,41 +214,6 @@
                             </a>
                         </div>
                     @endif
-
-                    <!--@if($document->status === 'PENDING_VICE_DEAN_APPROVAL')
-                    <div class="mt-6 pt-4 border-t">
-                        <h3 class="text-lg font-medium mb-4">ການດຳເນີນການ</h3>
-    
-                        {{-- Reject Form --}}
-                        <form action="{{ route('vicedean.documents.reject', $document->id) }}" method="POST">
-                            @csrf
-                            <div class="mb-4">
-                                <x-input-label for="rejection_reason" value="ເຫດຜົນໃນການສົ່ງເອກະສານກັບ (ຕ້ອງລະບຸ)" />
-                                <textarea id="rejection_reason" name="rejection_reason" rows="3" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm" required></textarea>
-                            </div>
-        
-                            {{-- ປຸ່ມ Reject ຈະ submit ຟອມນີ້ --}}
-                            <x-danger-button type="submit" onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການສົ່ງເອກະສານນີ້ກັບ?')">
-                                ສົ່ງເອກະສານກັບ
-                            </x-danger-button>
-                        </form>
-
-                        {{-- Approve Form - ວາງແຍກອອກມາຕ່າງຫາກເພື່ອຄວາມຊັດເຈນ --}}
-                        <div class="mt-4 text-right"> {{-- ໃຊ້ text-right ເພື່ອຍູ້ປຸ່ມໄປທາງຂວາ --}}
-                            <form action="{{ route('vicedean.documents.approve', $document->id) }}" method="POST" class="inline-block">
-                                @csrf
-                                <x-primary-button type="submit" onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອະນຸມັດ ແລະ ສົ່ງຕໍ່ເອກະສານນີ້?')">
-                                    ອະນຸມັດ (ສົ່ງຕໍ່)
-                                </x-primary-button>
-                            </form>
-                        </div>
-                        @endif
-                        {{-- Back Button - ວາງໄວ້ລຸ່ມສຸດກໍໄດ້ ຫຼື ບ່ອນທີ່ເໝາະສົມ --}}
-                        <div class="mt-6 text-right">
-                            <a href="{{ route('vicedean.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
-                                ກັບຄືນ
-                            </a>
-                        </div>-->
                     </div>
                     
                 </div>

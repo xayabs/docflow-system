@@ -1,0 +1,69 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('ຕິດຕາມເອກະສານທັງໝົດໃນລະບົບ') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-[90%] mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    
+                    {{-- ຟອມກັ່ນຕອງຄົ້ນຫາ --}}
+                    <x-document-filter-form 
+                        :action="route('headfinance.documents.all')" {{-- ປ່ຽນເປັນ vicedean.documents.all ຫຼື headfinance.documents.all ຕາມບົດບາດ --}}
+                        :departments="$departments"
+                        :statuses="$statuses"
+                        title-span="md:col-span-2" 
+                    />
+
+                    <table class="min-w-full divide-y divide-gray-200 mt-4">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500">ລະຫັດເອກະສານ</th>
+                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500">ຫົວຂໍ້ເອກະສານ</th>
+                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500">ຜູ້ຮ້ອງຂໍ</th>
+                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500">ມູນຄ່າລວມ</th>
+                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500">ສະຖານະປັດຈຸບັນ</th>
+                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500">ວັນທີສ້າງ</th>
+                                <th class="relative px-6 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($documents as $document)
+                                <tr>
+                                    <td class="px-6 py-4 text-center font-mono text-sm">{{ $document->document_code }}</td>
+                                    <td class="px-6 py-4">{{ $document->title }}</td>
+                                    <td class="px-6 py-4">{{ $document->requester->displayName ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 font-semibold">
+                                        {{ $document->document_type_id == 2 ? 'N/A' : number_format($document->total_amount, 0) . ' KIP' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-left">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ getStatusColorClass($document->status) }}">
+                                            {{ translateStatus($document->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">{{ $document->created_at->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <a href="{{ route('headfinance.documents.show', $document->id) }}" class="text-indigo-600 hover:text-indigo-900">ເບິ່ງລາຍລະອຽດ</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                        ບໍ່ມີເອກະສານໃນລະບົບ
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+
+                    <div class="mt-4">
+                        {{ $documents->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
