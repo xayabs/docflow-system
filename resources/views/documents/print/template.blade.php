@@ -77,7 +77,7 @@
     
     <div style="margin-top: 20px; margin-bottom: 10px;">
         <div style="float: left; width: 50%;">
-            <p class="font-bold">ຄະນະວິທະຍາສາດທຳມະຊາດ</p>
+            <p>ຄະນະວິທະຍາສາດທຳມະຊາດ</p>
             <p>{{ $document->requester->department->name ?? '' }}</p>
         </div>
         <div style="float: right; width: 50%; text-align: right;">
@@ -88,7 +88,39 @@
     </div>
 
     <h1 class="main-title text-center">ໜັງສືສະເໜີ</h1>
-    
+    <p style="margin-top: 15px; text-indent: 80px;">ຮຽນ: ທ່ານ ຫົວໜ້າຄະນະວິຊາ ຄະນະວິທະຍາສາດທຳມະຊາດ ທີ່ນັບຖື</p>
+    <p style="text-indent: 80px;">ເລື່ອງ: {{ $document->title }}</p>
+    @if($document->references)
+        <div style="padding-left: 40px;"> 
+            <table style="width: 100%; border: none; margin-top: 5px;">
+                <tr style="vertical-align: top;">
+                    {{-- 1. ເພີ່ມ text-align: left; ໃນ td ຂອງຄໍາວ່າ ອີງຕາມ --}}
+                    <td style="border: none; padding: 0; padding-right: 10px; white-space: nowrap; text-align: right;">
+                        <span style="font-weight: bold;">ອີງຕາມ:</span>
+                    </td>
+                    {{-- 2. ເພີ່ມ text-align: left; ໃນ td ຂອງເນື້ອໃນ --}}
+                    <td style="border: none; padding: 0; text-align: left;">
+                        {!! nl2br(e($document->references)) !!}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    @endif
+    <!--@if($document->references)
+        <div style="padding-left: 40px;"> 
+        <table style="width: 100%; border: none; margin-top: 5px;">
+            <tr style="vertical-align: top;">
+                <td style="border: none; padding: 0; padding-right: 10px; white-space: nowrap;">
+                    <span style="font-weight: bold;">ອີງຕາມ</span>
+                </td>
+                <td style="border: none; padding: 0;">
+                    {!! nl2br(e($document->references)) !!}
+                </td>
+            </tr>
+        </table>
+    </div>
+    @endif-->
+    <!--
     <p style="margin-top: 15px; text-indent: 50px;">ຮຽນ: ທ່ານ ຫົວໜ້າຄະນະວິຊາ ຄະນະວິທະຍາສາດທຳມະຊາດ ທີ່ນັບຖື</p>
     
     <div style="display: flex; margin-top: 5px;">
@@ -102,7 +134,7 @@
         <div style="flex: 1;">{!! nl2br(e($document->references)) !!}</div>
     </div>
     @endif
-
+-->
     <div style="margin-top: 15px; text-indent: 50px; text-align: justify;"> 
         <p>
             ຫົວໜ້າ{{ $document->requester->department->name ?? '' }} ຂໍຖືເປັນກຽດ ຮຽນສະເໜີມາຍັງທ່ານ 
@@ -114,7 +146,7 @@
                     ຕາມລາຍລະອຽດລຸ່ມນີ້:
                 @endif
             @elseif($document->document_type_id == 2)
-                ເພື່ອຂໍ{{ getActionVerbFromTitle($document->title) }} {{ $document->activity_description }}.
+                ເພື່ອ{{ $document->activity_description }}.
             @endif
         </p>
     </div>
@@ -154,7 +186,7 @@
     @endif
     
     <p style="margin-top: 15px; text-indent: 50px;">ດັ່ງນັ້ນ, ຈຶ່ງສະເໜີມາຍັງທ່ານ ເພື່ອພິຈາລະນາຕາມຄວາມເໝາະສົມດ້ວຍ.</p>
-    <p style="margin-top: 10px; text-align: center; padding-left: 50%;">ຮຽນມາດ້ວຍຄວາມເຄົາລົບ ແລະ ນັບຖືເປັນຢ່າງສູງ</p>
+    <p style="margin-top: 10px; text-indent: 30%;">ຮຽນມາດ້ວຍຄວາມເຄົາລົບ ແລະ ນັບຖືເປັນຢ່າງສູງ</p>
     
     {{-- ບ່ອນເຊັນ --}}
     <div style="margin-top: 20px;">

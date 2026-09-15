@@ -49,8 +49,40 @@ class DocumentSubmitted extends Notification //implements ShouldQueue
      *
      * @return array<string, mixed>
      */
-
     public function toArray(object $notifiable): array
+    {
+        $roleName = $notifiable->role->name ?? 'Guest';
+    
+        $routeName = 'dashboard'; 
+        $routeParams = ['document' => $this->document->id];
+
+        switch ($roleName) {
+            case 'Dean_Secretary': $routeName = 'secretary.documents.show'; break;
+            case 'Finance_Preparer': $routeName = 'finance.preparer.documents.show'; break;
+            case 'Accountant': $routeName = 'accountant.documents.show'; break;
+            case 'Vice_Dean': $routeName = 'vicedean.documents.show'; break;
+            case 'Head_of_Finance': $routeName = 'headfinance.documents.show'; break;
+            case 'Dean': $routeName = 'dean.documents.show'; break;
+            case 'Cashier': $routeName = 'cashier.documents.show'; break;
+            case 'Procurement_Staff': $routeName = 'procurement.documents.show'; break;
+            case 'Staff': $routeName = 'staff.documents.show'; break;
+        }
+
+        // ກວດສອບວ່າ Route ທີ່ກຳນົດໄວ້ມີຢູ່ຈິງໃນລະບົບຫຼືບໍ່
+        if (!\Illuminate\Support\Facades\Route::has($routeName)) {
+            $routeName = 'dashboard';
+            $routeParams = [];
+        }
+
+        return [
+            'document_id' => $this->document->id,
+            'title' => $this->document->title,
+            'message' => 'ມີເອກະສານໃໝ່ລໍຖ້າການກວດສອບຈາກທ່ານ',
+            'url' => route($routeName, $routeParams),
+        ];
+    }
+
+ /*   public function toArray(object $notifiable): array
     {
         // 1. ດືງຊື່ຂອງ Role ຂອງຜູ້ໃຊ້ທີ່ຈະໄດ້ຮັບການແຈ້ງເຕືອນ
         $roleName = $notifiable->role->name;
@@ -102,5 +134,5 @@ class DocumentSubmitted extends Notification //implements ShouldQueue
             // 4. ສ້າງ URL ຈາກ Route Name ແລະ Parameters ທີ່ເຮົາເລືອກໄວ້
             'url' => route($routeName, $routeParams),
         ];
-    }
+    }*/
 }

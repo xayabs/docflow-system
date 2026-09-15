@@ -144,8 +144,12 @@ class VDDashboardController extends Controller
             'action' => 'Approved by Vice Dean',
             'comment' => 'ອະນຸມັດແລ້ວ, ສົ່ງກັບໄປໃຫ້ນາຍບັນຊີເພື່ອລົງບັນຊີ.'
         ]);
+
+        if ($document->requester) {
+            $document->requester->notify(new \App\Notifications\DocumentReadyToPrint($document));
+        }
         
-        // ຄົ້ນຫາຜູ້ໃຊ້ທຸກຄົນທີ່ມີ Role ເປັນ Head_of_Finance
+        // ຄົ້ນຫາຜູ້ໃຊ້ທຸກຄົນທີ່ມີ Role ເປັນ Accountant
         $accountants = User::whereHas('role', function ($query) {
             $query->where('name', 'Accountant');
         })->get();

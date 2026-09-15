@@ -55,7 +55,6 @@
                                     <input type="hidden" name="document_type_id" value="1">
                                 @endif
                             </div>
-                            
                             <div class="mt-4">
                                 <x-input-label for="references" value="ອິງຕາມ (ຖ້າມີ, ແຕ່ລະຂໍ້ຂຶ້ນແຖວໃໝ່)" />
                                 <textarea id="references" name="references" rows="3" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">{{ old('references') }}</textarea>
@@ -69,25 +68,25 @@
                         {{-- ສ່ວນນີ້ຈະສະແດງ ກໍຕໍ່ເມື່ອ documentTypeId ມີຄ່າເທົ່າກັບ '1' (ID ຂອງ "ຂໍຖອນເງິນ") --}}
                         {{-- Document Items Section with Alpine.js --}}
                         <div class="mt-8" x-show="documentTypeId == '1'" x-data="{
-                            // 1. ດືງຂໍ້ມູນ Items
+                            // 1. ดึงข้อมูล Items
                             items: {{ isset($purchaseDocument) ? $purchaseDocument->documentItems->toJson() : '[{ description: \'\', quantity: 1, unit_price: \'\' }]' }},
                             
-                            // 2. ຟັງຊັນຈັດຮູບແບບຕົວເລກ (ໃສ່ຈຸດ)
+                            // 2. ฟังก์ชันจัดรูปแบบตัวเลข (ใส่คอมม่า)
                             formatNumber(number) {
                                 if (!number) return '';
-                                let numStr = number.toString().replace(/[^\d.]/g, ''); // ອະນຸຍາດສະເພາະຕົວເລກແລະຈຸດ
+                                let numStr = number.toString().replace(/[^\d.]/g, ''); // อนุญาตเฉพาะตัวเลขและจุด
                                 let parts = numStr.split('.');
                                 parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); 
                                 return parts.join('.');
                             },
 
-                            // 3. ຟັງຊັນແປງຂໍ້ຄວາມກັບເປັນຕົວເລກ (ລຶບຈຸດອອກເພື່ອການຄໍານວນ)
+                            // 3. ฟังก์ชันแปลงสตริงกลับเป็นตัวเลข (ลบคอมม่าออกเพื่อการคำนวณ)
                             parseNumber(str) {
                                 if (!str) return 0;
                                 return parseFloat(str.toString().replace(/,/g, '')) || 0;
                             },
 
-                            // 4. (Optional) Initialize items ให้มี format ຕັ້ງແຕ່ໂຫຼດຄັ້ງທໍາອິດ
+                            // 4. (Optional) Initialize items ให้มี format ตั้งแต่แรกโหลด
                             init() {
                                 this.items.forEach(item => {
                                     if (item.unit_price) {
@@ -116,7 +115,7 @@
                                         <div class="col-span-2">
                                             <label :for="'unit_price_' + index" class="block font-medium text-sm text-gray-700">ລາຄາຕໍ່ໜ່ວຍ</label>
                                             
-                                            {{-- [ແກ້ໄຂ 1] ປ່ຽນ type ເປັນ text, ລຶບ :name ອອກ, ເພີ່ມ @input --}}
+                                            {{-- [แก้ไข 1] เปลี่ยน type เป็น text, ลบ :name ออก, เพิ่ม @input --}}
                                             <input :id="'unit_price_' + index" 
                                                    type="text" 
                                                    x-model="item.unit_price" 
@@ -124,7 +123,7 @@
                                                    class="border-gray-300 rounded-md shadow-sm w-full mt-1 text-right" 
                                                    :required="documentTypeId == '1'">
                                             
-                                            {{-- [ແກ້ໄຂ 2] ສ້າງ Hidden input ສໍາລັບສົ່ງຄ່າຕົວເລກລ້ວນກັບໄປທີ່ Controller --}}
+                                            {{-- [แก้ไข 2] สร้าง Hidden input สำหรับส่งค่าตัวเลขล้วนกลับไปที่ Controller --}}
                                             <input type="hidden" :name="'items[' + index + '][unit_price]'" :value="parseNumber(item.unit_price)">
                                         </div>
                                         
@@ -132,7 +131,7 @@
                                         <div class="col-span-2">
                                             <label class="block font-medium text-sm text-gray-700">ລາຄາລວມ</label>
                                             
-                                            {{-- [ແກ້ໄຂ 3] ໃຊ້ Math.round ເພື່ອຕັດເສດທົດສະນິຍົມອອກ ແລະ toLocaleString ເພື່ອໃສ່ຈຸດ --}}
+                                            {{-- [แก้ไข 3] ใช้ Math.round เพื่อปัดเศษทศนิยมออก และ toLocaleString เพื่อใส่คอมม่า --}}
                                             <p class="mt-2 text-right font-bold" x-text="Math.round(item.quantity * parseNumber(item.unit_price)).toLocaleString('en-US')"></p>
                                         </div>
                                         
@@ -144,10 +143,10 @@
                                 </template>
                             </div>
                             
-                            {{-- [ແກ້ໄຂ 4] ແກ້ໄຂປຸ່ມເພີ່ມລາຍການ ໃຫ້ unit_price ເລີ່ມຕົ້ນເປັນຂໍ້ຄວາມວ່າງ '' --}}
+                            {{-- [แก้ไข 4] แก้ไขปุ่มเพิ่มรายการ ให้ unit_price เริ่มต้นเป็นสตริงว่าง '' --}}
                             <button type="button" @click="items.push({ description: '', quantity: 1, unit_price: '' })" class="mt-4 text-blue-500">+ ເພີ່ມລາຍການ</button>
                         </div>
-<!--
+                        <!--
                         <div class="mt-8" x-show="documentTypeId == '1'" x-data="{items: {{ isset($purchaseDocument) ? $purchaseDocument->documentItems->toJson() : '[{ description: \'\', quantity: 1, unit_price: 0 }]' }} }">
                             <h3 class="text-lg font-medium">ລາຍການເບີກຈ່າຍ</h3>
                             <div class="mt-4 border-t border-b border-gray-200 divide-y divide-gray-200">
@@ -178,8 +177,8 @@
                                 </template>
                             </div>
                             <button type="button" @click="items.push({ description: '', quantity: 1, unit_price: 0 })" class="mt-4 text-blue-500">+ ເພີ່ມລາຍການ</button>
-                        </div>
--->                        
+                        </div>-->
+                        
                         {{-- ໃນອະນາຄົດ, ເຮົາສາມາດເພີ່ມ div ໃຫມ່ທີ່ມີ x-show="documentTypeId == '2'" ຢູ່ທີ່ນີ້ໄດ້ --}}
 
                         <!-- Attachments -->

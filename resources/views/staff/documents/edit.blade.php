@@ -77,12 +77,100 @@
 
                         <!-- Document Items Section -->
                         <div class="mt-8" x-show="documentTypeId == '1'" 
+                            x-data="{ 
+                                // 1. ดึงข้อมูล Items
+                                items: {{ old('items') ? json_encode(old('items')) : $document->documentItems->toJson() }},
+                                
+                                // 2. ฟังก์ชันจัดรูปแบบตัวเลข (ใส่คอมม่า)
+                                formatNumber(number) {
+                                    if (!number && number !== 0) return '';
+                                    let numStr = number.toString().replace(/[^\d.]/g, ''); 
+                                    let parts = numStr.split('.');
+                                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); 
+                                    return parts.join('.');
+                                },
+
+                                // 3. ฟังก์ชันแปลงสตริงกลับเป็นตัวเลข (สำหรับการคำนวณและบันทึก)
+                                parseNumber(str) {
+                                    if (!str && str !== 0) return 0;
+                                    return parseFloat(str.toString().replace(/,/g, '')) || 0;
+                                },
+
+                                // 4. ทำการ format ข้อมูลเดิมตั้งแต่เริ่มโหลดหน้าเว็บ
+                                init() {
+                                    this.items.forEach(item => {
+                                        
+                                        if (item.quantity) {
+                                            item.quantity = Math.round(this.parseNumber(item.quantity));
+                                        }
+
+                                        if (item.unit_price) {
+                                            let roundedPrice = Math.round(this.parseNumber(item.unit_price));
+                                            item.unit_price = this.formatNumber(roundedPrice);
+                                        }
+                                    });
+                                }
+                            }">
+                            <h3 class="text-lg font-medium">ລາຍການເບີກຈ່າຍ</h3>
+                            <div class="mt-4 border-t border-b border-gray-200 divide-y divide-gray-200">
+                                <template x-for="(item, index) in items" :key="index">
+                                    <div class="grid grid-cols-12 gap-4 p-3 items-center">
+                                        
+                                        <!-- Description -->
+                                        <div class="col-span-5">
+                                            <label :for="'description_' + index" class="block font-medium text-sm text-gray-700">ລາຍລະອຽດ</label>
+                                            {{-- สังเกตว่าใช้ x-model="item.item_description" และ :name ก็ต้องใช้ [item_description] เพื่อความแน่นอน --}}
+                                            <input :id="'description_' + index" type="text" x-model="item.item_description" :name="'items[' + index + '][item_description]'" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full mt-1" :required="documentTypeId == '1'">
+                                        </div>
+                                        
+                                        <!-- Quantity -->
+                                        <div class="col-span-2">
+                                            <label :for="'quantity_' + index" class="block font-medium text-sm text-gray-700">ຈຳນວນ</label>
+                                            <input :id="'quantity_' + index" type="number" x-model="item.quantity" :name="'items[' + index + '][quantity]'" class="border-gray-300 rounded-md shadow-sm w-full mt-1" min="1" :required="documentTypeId == '1'">
+                                        </div>
+                                        
+                                        <!-- Unit Price -->
+                                        <div class="col-span-2">
+                                            <label :for="'unit_price_' + index" class="block font-medium text-sm text-gray-700">ລາຄາຕໍ່ໜ່ວຍ</label>
+                                            
+                                            {{-- Input แบบ text เพื่อแสดงคอมม่า --}}
+                                            <input :id="'unit_price_' + index" 
+                                                   type="text" 
+                                                   x-model="item.unit_price" 
+                                                   @input="item.unit_price = formatNumber($event.target.value)"
+                                                   class="border-gray-300 rounded-md shadow-sm w-full mt-1 text-right" 
+                                                   :required="documentTypeId == '1'">
+                                            
+                                            {{-- Hidden input ส่งค่าตัวเลขไป Backend --}}
+                                            <input type="hidden" :name="'items[' + index + '][unit_price]'" :value="parseNumber(item.unit_price)">
+                                        </div>
+                                        
+                                        <!-- Total Price -->
+                                        <div class="col-span-2">
+                                            <label class="block font-medium text-sm text-gray-700">ລາຄາລວມ</label>
+                                            {{-- ใช้ Math.round และ toLocaleString --}}
+                                            <p class="mt-2 text-right font-bold" x-text="Math.round(item.quantity * parseNumber(item.unit_price)).toLocaleString('en-US')"></p>
+                                        </div>
+                                        
+                                        <!-- Remove Button -->
+                                        <div class="col-span-1">
+                                            <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="text-red-500 mt-6">&times; ລຶບ</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            {{-- ปุ่มเพิ่มรายการ แก้ไข key เป็น item_description --}}
+                            <button type="button" @click="items.push({ item_description: '', quantity: 1, unit_price: '' })" class="mt-4 text-blue-500">+ ເພີ່ມລາຍການ</button>
+                        </div>
+
+                        <!-- Document Items Section --><!--
+                        <div class="mt-8" x-show="documentTypeId == '1'" 
                             x-data="{ items: {{ old('items') ? json_encode(old('items')) : $document->documentItems->toJson() }} }">
                             <h3 class="text-lg font-medium">ລາຍການເບີກຈ່າຍ</h3>
                             <div class="mt-4 border-t border-b border-gray-200 divide-y divide-gray-200">
                                 <template x-for="(item, index) in items" :key="index">
                                     <div class="grid grid-cols-12 gap-4 p-3 items-center">
-                                        <!-- Fields for items -->
+                                        
                                         <div class="col-span-5"><label :for="'description_' + index" class="block font-medium text-sm text-gray-700">ລາຍລະອຽດ</label>
                                         <input :id="'description_' + index" type="text" x-model="item.item_description" :name="'items[' + index + '][item_description]'" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full mt-1" :required="documentTypeId == '1'">
                                         </div>
@@ -94,7 +182,7 @@
                                 </template>
                             </div>
                             <button type="button" @click="items.push({ description: '', quantity: 1, unit_price: 0 })" class="mt-4 text-blue-500">+ ເພີ່ມລາຍການ</button>
-                        </div>
+                        </div>-->
 
                         <!-- Attachments -->
                         <div class="mt-8">
