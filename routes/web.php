@@ -81,6 +81,7 @@ Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
         Route::get('history/approved', [\App\Http\Controllers\Secretary\DashboardController::class, 'approvedHistory'])->name('history.approved');
         Route::get('history/rejected', [\App\Http\Controllers\Secretary\DashboardController::class, 'rejectedHistory'])->name('history.rejected');
         Route::post('documents/{document}/process', [\App\Http\Controllers\Secretary\DashboardController::class, 'process'])->name('documents.process');
+        Route::get('history/approved/export/{type}', [DashboardController::class, 'exportApprovedHistory'])->name('history.approved.export');
     });
 
     // Route Group ສຳລັບ Finance Preparer

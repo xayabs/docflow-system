@@ -13,6 +13,8 @@ use App\Models\Department;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\PrivateNote;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel; // ສຳລັບ Export Excel
+use App\Exports\SecretaryApprovedHistoryExport; // ສຳລັບເອີ້ນໃຊ້ Export Class ທີ່ເຮົາສ້າງ
 
 class DashboardController extends Controller
 {
@@ -385,6 +387,29 @@ class DashboardController extends Controller
                 ];
 
         return view('secretary.history.rejected', compact('documents', 'departments', 'statuses'));
+    }
+
+    /**
+     * Export ປະຫວັດເອກະສານທີ່ອະນຸມັດຜ່ານ ເປັນໄຟລ໌ Excel.
+     */
+    public function exportApprovedHistory($type)
+    {
+        // ກວດສອບສິດການເຂົ້າເຖິງ
+        $this->authorize('viewAny', Document::class);
+
+        // ກວດສອບປະເພດໄຟລ໌ທີ່ຕ້ອງການ Export (ຕອນນີ້ຮອງຮັບສະເພາະ xlsx)
+        if ($type === 'xlsx') {
+            $userId = auth()->id();
+            
+            // ຕັ້ງຊື່ໄຟລ໌ອັດຕະໂນມັດ ພ້ອມວັນທີປະຈຸບັນ
+            $fileName = 'Secretary_Approved_History_' . now()->format('Y-m-d_H-i') . '.xlsx';
+            
+            // ສັ່ງດາວໂຫຼດໄຟລ໌ Excel
+            return Excel::download(new SecretaryApprovedHistoryExport($userId), $fileName);
+        }
+
+        // ຖ້າປະເພດບໍ່ຖືກຕ້ອງ (ເຊັ່ນ ພະຍາຍາມໂຫຼດ pdf ທີ່ຍັງບໍ່ທັນເຮັດ)
+        return redirect()->back()->with('error', 'ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ ຫຼື ຍັງບໍ່ຮອງຮັບ.');
     }
 }
 

@@ -146,7 +146,7 @@
                     ຕາມລາຍລະອຽດລຸ່ມນີ້:
                 @endif
             @elseif($document->document_type_id == 2)
-                ເພື່ອ{{ $document->activity_description }}.
+                ເພື່ອຂໍ{{ $document->activity_description }}.
             @endif
         </p>
     </div>

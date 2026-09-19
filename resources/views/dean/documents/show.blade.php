@@ -1,266 +1,162 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight truncate">
             {{ __('ກວດສອບເອກະສານ:') }} {{ $document->title }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-[90%] mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 space-y-6">
+    <div class="py-6 md:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg rounded-xl border border-gray-200">
+                <div class="p-4 sm:p-6 text-gray-900 space-y-6 md:space-y-8">
+                    
                     @if ($errors->any())
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-sm">
                             <strong class="font-bold">ເກີດຂໍ້ຜິດພາດ!</strong>
-                            <ul>
+                            <ul class="mt-1 list-disc list-inside">
                                 @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
+                                    <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
                         </div>
                     @endif
+
                     @if(isset($privateNotes) && $privateNotes->isNotEmpty())
-                        <div class="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
-                            <p class="font-bold">ຂໍ້ຄວາມ/ໂໜດສ່ວນຕົວເຖິງທ່ານ:</p>
+                        <div class="mb-4 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg shadow-sm">
+                            <p class="font-bold text-amber-800 text-sm flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+                                ຂໍ້ຄວາມ / ໂໜດສ່ວນຕົວເຖິງທ່ານ:
+                            </p>
                             @foreach($privateNotes as $note)
-                                <div class="mt-2">
+                                <div class="mt-2 text-sm text-amber-900 bg-white p-3 rounded border border-amber-200">
                                     <p>{{ $note->note }}</p>
-                                    <p class="text-xs text-right">- ຈາກ: {{ $note->sender->name }}</p>
+                                    <p class="text-xs text-right text-gray-500 mt-1">- ຈາກ: <span class="font-semibold">{{ $note->sender->name }}</span></p>
                                 </div>
                             @endforeach
                         </div>
                     @endif
-                    {{-- Section 1: Document Summary (ຄືເກົ່າ) --}}
-                    <div>
-                        <h3 class="text-lg font-medium border-b pb-2 mb-4">ສະຫຼຸບຂໍ້ມູນເອກະສານ</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                    {{-- Section 1: Document Summary --}}
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <h3 class="text-base md:text-lg font-bold border-b border-gray-200 pb-2 mb-4 text-gray-800">ສະຫຼຸບຂໍ້ມູນເອກະສານ</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
-                                <dt class="text-base font-medium text-gray-500">ສະຖານະ</dt>
-                                <dd class="mt-1 text-sm text-gray-900 font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full {{ getStatusColorClass($document->status) }}">
-                                {{ translateStatus($document->status) }}</dd>
-                                <!--inline-block">{{ $document->status }}-->
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">ສະຖານະ</dt>
+                                <dd class="text-sm">
+                                    <span class="px-2.5 py-1 font-semibold rounded-full {{ getStatusColorClass($document->status) }}">
+                                        {{ translateStatus($document->status) }}
+                                    </span>
+                                </dd>
                             </div>
                             <div>
-                                <dt class="text-base font-medium text-gray-500">ປະເພດ</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $document->documentType->name ?? 'N/A' }}</dd>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">ປະເພດ</dt>
+                                <dd class="text-sm text-gray-900 font-medium">{{ $document->documentType->name ?? 'N/A' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-base font-medium text-gray-500">ຜູ້ຮ້ອງຂໍ</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $document->requester->name ?? 'N/A' }}</dd>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">ຜູ້ຮ້ອງຂໍ</dt>
+                                <dd class="text-sm text-gray-900 font-medium">{{ $document->requester->name ?? 'N/A' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-base font-medium text-gray-500">ພາກສ່ວນ</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $document->requester->department->name ?? 'N/A' }}</dd>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">ມູນຄ່າລວມ</dt>
+                                <dd class="text-lg text-blue-600 font-bold">{{ number_format($document->total_amount, 0) }} KIP</dd>
                             </div>
-                            @if($document->document_type_id != 2)
-                            <div>
-                                <dt class="text-base font-medium text-gray-500">ມູນຄ່າລວມ</dt>
-                                <dd class="mt-1 text-sm text-gray-900 font-bold">{{ number_format($document->total_amount, 2) }} KIP</dd>
-                            </div>
-                            @endif
                         </div>
                     </div>
 
-                    {{-- Section 2: Document Items (ຄືເກົ່າ) --}}
+                    {{-- Section 2: Document Items --}}
                     @if($document->document_type_id != 2)
                     <div>
-                        <h3 class="text-lg font-medium border-b pb-2 mb-4">ລາຍການເບີກຈ່າຍ</h3>
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-base font-bold text-gray-500 uppercase">ລາຍລະອຽດ</th>
-                                    <th class="px-6 py-3 text-right text-base font-bold text-gray-500 uppercase">ຈຳນວນ</th>
-                                    <th class="px-6 py-3 text-right text-base font-bold text-gray-500 uppercase">ລາຄາຕໍ່ໜ່ວຍ</th>
-                                    <th class="px-6 py-3 text-right text-base font-bold text-gray-500 uppercase">ລາຄາລວມ</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($document->documentItems as $item)
-                                <tr>
-                                    <td class="px-6 py-4">{{ $item->item_description }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->quantity, 0) }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->unit_price, 0) }}</td>
-                                    <td class="px-6 py-4 text-right">{{ number_format($item->total_price, 0) }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                        ບໍ່ມີລາຍການເບີກຈ່າຍ
-                                    </td>
-                                </tr>
-                            @endforelse
-                            </tbody>
-                            {{-- แสดงยอดรวมก็ต่อเมื่อมีรายการ --}}
-                            @if($document->documentItems->isNotEmpty())
-                                <tfoot>
+                        <h3 class="text-base md:text-lg font-bold border-b border-gray-200 pb-2 mb-4 text-gray-800">ລາຍການເບີກຈ່າຍ</h3>
+                        <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
                                     <tr>
-                                        <td colspan="3" class="px-6 py-4 text-right font-bold">ລວມທັງໝົດ:</td>
-                                        <td class="px-6 py-4 text-right font-bold">{{ number_format($document->total_amount, 0) }}</td>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">ລາຍລະອຽດ</th>
+                                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">ຈຳນວນ</th>
+                                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">ລາຄາຕໍ່ໜ່ວຍ</th>
+                                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">ລາຄາລວມ</th>
                                     </tr>
-                                </tfoot>
-                            @endif
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($document->documentItems as $item)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 text-sm">{{ $item->item_description }}</td>
+                                            <td class="px-6 py-4 text-right text-sm">{{ number_format($item->quantity, 0) }}</td>
+                                            <td class="px-6 py-4 text-right text-sm">{{ number_format($item->unit_price, 0) }}</td>
+                                            <td class="px-6 py-4 text-right text-sm font-bold text-blue-600">{{ number_format($item->total_price, 0) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        {{-- Mobile View --}}
+                        <div class="block md:hidden space-y-3">
+                            @foreach ($document->documentItems as $item)
+                                <div class="bg-white border p-3 rounded-lg text-sm">
+                                    <p class="font-bold">{{ $item->item_description }}</p>
+                                    <p class="text-xs text-gray-500">ຈຳນວນ: {{ number_format($item->quantity, 0) }} | ລາຄາ: {{ number_format($item->unit_price, 0) }}</p>
+                                    <p class="text-right font-bold text-blue-600">{{ number_format($item->total_price, 0) }} ກີບ</p>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                     @endif
 
-                    {{-- Section 3: Attachments (ຄືເກົ່າ) --}}
-                    @if($document->document_type_id != 2)
-                    <div>
-                        <h3 class="text-lg font-medium border-b pb-2 mb-4">ໄຟລ໌ແນບ</h3>
-                        <ul class="list-disc pl-5">
-                            @forelse ($document->attachments as $attachment)
-                                <li>
-                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
-                                        {{ $attachment->file_name }}
-                                    </a>
-                                </li>
-                            @empty
-                                <li>ບໍ່ມີໄຟລ໌ແນບ</li>
-                            @endforelse
-                        </ul>
-                    </div>
-                    @endif
-                    
                     {{-- Section: Document History --}}
                     <x-document-history :logs="$document->documentLogs" />
                         
-                    {{-- ====================================================== --}}
-                    {{-- ===== Section 4: Action Buttons (ສ່ວນທີ່ເພີ່ມໃໝ່) ===== --}}
-                    {{-- ====================================================== --}}
-             
+                    {{-- Section 4: Action Buttons (Responsive) --}}
                     @if(in_array($document->status, ['PENDING_DEAN_FINAL_APPROVAL', 'PENDING_DEAN_APPROVAL']))
-
-                    <div class="mt-6 pt-4 border-t">
-                        <h3 class="text-lg font-medium mb-4">ການດຳເນີນການ</h3>
-        
-                        {{-- ============================================= --}}
-                        {{-- ===== เริ่มส่วนที่แก้ไข Layout ===== --}}
-                        {{-- ============================================= --}}
-        
-                        {{-- เราจะมีฟอร์มเดียวที่ครอบทุกอย่าง --}}
-                        <form action="" method="POST" id="deanActionForm">
-                            @csrf
-
-                            {{-- Textarea สำหรับเหตุผล (จะถูกเปิด/ปิดด้วย JS) --}}
-                            <div id="rejectionReasonContainer" class="mb-4" style="display: none;">
-                                <x-input-label for="rejection_reason" value="ເຫດຜົນໃນການສົ່ງກັບ (ຕ້ອງລະບຸ)" />
-                                <textarea id="rejection_reason" name="rejection_reason" rows="3" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm"></textarea>
-                            </div>
-
-                            {{-- Div ครอบปุ่มทั้งหมด --}}
-                            <div class="flex justify-end items-center space-x-4">
-                
-                                {{-- ปุ่มกลับคืน route('dean.dashboard') --}}
-                                <a href="{{ route('dean.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
-                                    ກັບຄືນ
-                                </a>
-                
-                                {{-- ปุ่มปฏิเสธ (ใช้ JS) --}}
-                                <x-danger-button type="button" onclick="prepareReject()">
-                                    ສົ່ງເອກະສານກັບ
-                                </x-danger-button>
-                
-                                {{-- ปุ่มอนุมัติ (ใช้ JS) --}}
-                                <x-primary-button type="button" onclick="prepareApprove()">
-                                    ອະນຸມັດ (ສົ່ງຕໍ່)
-                                </x-primary-button>
-                
-                            </div>
-                        </form>
-
-                        {{-- ============================================== --}}
-                        {{-- ===== JavaScript สำหรับควบคุมฟอร์ม ===== --}}
-                        {{-- ============================================== --}}
-                        <script>
-                            const deanForm = document.getElementById('deanActionForm');
-                            const reasonContainer = document.getElementById('rejectionReasonContainer');
-                            const reasonInput = document.getElementById('rejection_reason');
-
-                            function prepareApprove() {
-                            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອະນຸມັດແລະສົ່ງຕໍ່ເອກະສານນີ້?')) {
-                                deanForm.action = "{{ route('dean.documents.approve', $document->id) }}";
-                                    deanForm.submit();
-                                }
-                            }
-
-                            function prepareReject() {
-                                // แสดงช่องเหตุผล
-                                reasonContainer.style.display = 'block';
-                                reasonInput.setAttribute('required', 'required');
-                
-                                // เปลี่ยนฟังก์ชันของปุ่มอนุมัติ ให้กลายเป็นปุ่มยืนยันการปฏิเสธ
-                                const approveBtn = deanForm.querySelector('button[onclick="prepareApprove()"]');
-                                approveBtn.innerText = 'ຢືນຢັນການສົ່ງກັບ';
-                                approveBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700'); // ลบสีน้ำเงิน
-                                approveBtn.classList.add('bg-red-600', 'hover:bg-red-500');   // เพิ่มสีแดง
-                
-                                approveBtn.onclick = function() {
-                                if (reasonInput.value.length >= 10) {
-                                    if (confirm('ທ່ານຢືນຢັນທີ່ຈະສົ່ງກັບເອກະສານນີ້ແມ່ນບໍ?')) {
-                                        deanForm.action = "{{ route('dean.documents.reject', $document->id) }}";
-                                            deanForm.submit();
-                                        }
-                                    } else {
-                                        alert('ກະລຸນາປ້ອນເຫດຜົນໃນການສົ່ງກັບ ຢ່າງໜ້ອຍ 10 ຕົວອັກສອນ');
-                                        reasonInput.focus();
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                            <h3 class="text-base md:text-lg font-bold mb-4 text-gray-800">ການດຳເນີນການ</h3>
+                            <form action="" method="POST" id="deanActionForm">
+                                @csrf
+                                <div id="rejectionReasonContainer" class="mb-4 bg-red-50 p-4 rounded-lg border border-red-200" style="display: none;">
+                                    <x-input-label for="rejection_reason" value="ເຫດຜົນໃນການສົ່ງເອກະສານກັບ (ຕ້ອງລະບຸ)" class="text-red-800" />
+                                    <textarea id="rejection_reason" name="rejection_reason" rows="3" class="w-full mt-2 rounded-lg border-red-300"></textarea>
+                                </div>
+                                <div class="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+                                    <a href="{{ route('dean.dashboard') }}" class="w-full sm:w-auto text-center px-4 py-2.5 bg-gray-100 rounded-lg font-semibold text-sm">ກັບຄືນ</a>
+                                    <button type="button" onclick="prepareReject()" class="w-full sm:w-auto px-4 py-2.5 bg-white border-2 border-red-500 text-red-600 rounded-lg font-semibold text-sm">ສົ່ງເອກະສານກັບ</button>
+                                    <button type="button" onclick="prepareApprove()" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm">ອະນຸມັດ (ສົ່ງຕໍ່)</button>
+                                </div>
+                            </form>
+                            <script>
+                                const deanForm = document.getElementById('deanActionForm');
+                                const reasonContainer = document.getElementById('rejectionReasonContainer');
+                                const reasonInput = document.getElementById('rejection_reason');
+                                function prepareApprove() {
+                                    if (confirm('ທ່ານແນ່ໃຈບໍ່?')) {
+                                        deanForm.action = "{{ route('dean.documents.approve', $document->id) }}";
+                                        deanForm.submit();
                                     }
-                                };
-                
-                                // ซ่อนปุ่มปฏิเสธเดิม
-                                const rejectBtn = deanForm.querySelector('button[onclick="prepareReject()"]');
-                                rejectBtn.style.display = 'none';
-                            }
-                        </script>
-        
-                    </div>
+                                }
+                                function prepareReject() {
+                                    reasonContainer.style.display = 'block';
+                                    reasonInput.setAttribute('required', 'required');
+                                    const approveBtn = deanForm.querySelector('button[onclick="prepareApprove()"]');
+                                    approveBtn.style.display = 'none';
+                                    const rejectBtn = deanForm.querySelector('button[onclick="prepareReject()"]');
+                                    rejectBtn.style.display = 'none';
+                                    
+                                    // เพิ่มปุ่มยืนยันการปฏิเสธ
+                                    const confirmReject = document.createElement('button');
+                                    confirmReject.type = 'submit';
+                                    confirmReject.name = 'action';
+                                    confirmReject.value = 'reject';
+                                    confirmReject.className = 'w-full sm:w-auto px-6 py-2.5 bg-red-600 text-white rounded-lg font-bold text-sm';
+                                    confirmReject.innerText = 'ຢືນຢັນການສົ່ງເອກະສານກັບ';
+                                    deanForm.querySelector('.flex').appendChild(confirmReject);
+                                }
+                            </script>
+                        </div>
                     @else
-                        {{-- ปุ่ม "กลับคืน" อย่างเดียว --}}
-                        <div class="mt-6 text-right">
-                            <a href="{{ url()->previous() }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
-                                ກັບຄືນ
-                            </a>
+                        <div class="mt-8 pt-6 border-t text-right">
+                            <a href="{{ url()->previous() }}" class="inline-flex px-6 py-2.5 bg-gray-100 rounded-lg font-semibold text-sm">ກັບຄືນ</a>
                         </div>
                     @endif
-
-                    <!--@if(in_array($document->status, ['PENDING_DEAN_FINAL_APPROVAL', 'PENDING_DEAN_APPROVAL']))
-                    <div class="mt-6 pt-4 border-t">
-                        <h3 class="text-lg font-medium mb-4">ການດຳເນີນການ</h3>
-    
-                        {{-- Reject Form --}}
-                        <form action="{{ route('dean.documents.reject', $document->id) }}" method="POST">
-                            @csrf
-                            <div class="mb-4">
-                                <x-input-label for="rejection_reason" value="ເຫດຜົນໃນການສົ່ງກັບ (ຕ້ອງລະບຸ)" />
-                                <textarea id="rejection_reason" name="rejection_reason" rows="3" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm" required></textarea>
-                            </div>
-        
-                            {{-- ປຸ່ມ Reject ຈະ submit ຟອມນີ້ --}}
-                            <x-danger-button type="submit" onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການສົ່ງເອກະສານນີ້ກັບ?')">
-                                ສົ່ງເອກະສານກັບ
-                            </x-danger-button>
-                        </form>
-
-                        {{-- Approve Form - ວາງແຍກອອກມາຕ່າງຫາກເພື່ອຄວາມຊັດເຈນ --}}
-                        <div class="mt-4 text-right"> {{-- ໃຊ້ text-right ເພື່ອຍູ້ປຸ່ມໄປທາງຂວາ --}}
-                            <form action="{{ route('dean.documents.approve', $document->id) }}" method="POST" class="inline-block">
-                                @csrf
-                                <x-primary-button type="submit" onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອະນຸມັດ ແລະ ສົ່ງຕໍ່ເອກະສານນີ້?')">
-                                    ອະນຸມັດ (ສົ່ງຕໍ່)
-                                </x-primary-button>
-                            </form>
-                        </div>
-                        @endif
-                        {{-- Back Button - ວາງໄວ້ລຸ່ມສຸດກໍໄດ້ ຫຼື ບ່ອນທີ່ເໝາະສົມ --}}
-                        <div class="mt-6 text-right">
-                            <a href="{{ route('dean.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
-                                ກັບຄືນ
-                            </a>
-                        </div>-->
-                    </div>
-                    
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

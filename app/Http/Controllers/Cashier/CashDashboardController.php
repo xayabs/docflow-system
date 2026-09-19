@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\DocumentPaid;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
+use App\Models\Department; 
 
 class CashDashboardController extends Controller
 {
@@ -245,6 +246,8 @@ class CashDashboardController extends Controller
                                ->latest('updated_at')
                                ->paginate(15);
 
-        return view('cashier.history.withdrawal_slips', compact('documents'));
+        $departments = Department::orderBy('name')->get();
+        //return view('cashier.history.withdrawal_slips', compact('documents'));
+        return view('cashier.history.withdrawal_slips', compact('documents', 'departments'));
     }
 }

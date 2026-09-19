@@ -5,10 +5,12 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-6 md:py-12">
         <div class="max-w-[90%] mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg rounded-xl border border-gray-200">
+                <div class="p-4 sm:p-6 text-gray-900">
+                    
+                    {{-- ຂໍ້ຄວາມແຈ້ງເຕືອນ --}}
                     @if (session('success'))
                         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                             <span class="block sm:inline">{{ session('success') }}</span>
@@ -20,57 +22,118 @@
                             <span class="block sm:inline">{{ session('error') }}</span>
                         </div>
                     @endif
-                    <h3 class="text-lg font-medium mb-4">ລາຍການເອກະສານທີ່ລໍຖ້າຈ່າຍເງິນ</h3>
+
+                    <h3 class="text-lg font-medium mb-4">ລາຍການເອກະສານທີ່ລໍຖ້າການດຳເນີນການ</h3>
+                    
+                    {{-- ຟອມຄົ້ນຫາ ແລະ ກັ່ນຕອງ --}}
                     <x-document-filter-form 
                         :action="route('cashier.dashboard')" 
                         :departments="$departments"
                         title-span="md:col-span-3" 
                     />
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500 uppercase">ລະຫັດເອກະສານ</th>
-                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500 uppercase">ຫົວຂໍ້ເອກະສານ</th>
-                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500 uppercase">ຜູ້ຮ້ອງຂໍ</th>
-                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500 uppercase">ມູນຄ່າລວມ</th>
-                                <th class="px-6 py-3 text-center text-base font-bold text-gray-500 uppercase">ວັນທີອະນຸມັດ</th>
-                                <th class="relative px-6 py-3 text-center text-base font-bold">ການດໍາເນີນການ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($payableDocuments as $document)
+                    
+                    {{-- ========================================================================= --}}
+                    {{-- 1. ສ່ວນສະແດງຜົນເທິງຈໍຄອມພິວເຕີ (Desktop Table) --}}
+                    {{-- ========================================================================= --}}
+                    <div class="hidden md:block overflow-x-auto mt-4">
+                        <table class="min-w-full divide-y divide-gray-200 border-b border-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td class="px-6 py-4 text-center font-mono text-sm">{{ $document->document_code }}</td>
-                                    <td class="px-6 py-4">{{ $document->title }}</td>
-                                    <td class="px-6 py-4">{{ $document->requester->name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 font-semibold">{{ number_format($document->total_amount, 2) }} KIP</td>
-                                    <td class="px-6 py-4">{{ $document->updated_at->format('d/m/Y H:i') }}</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <a href="{{ route('cashier.documents.show', $document->id) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">
-                                            @if($document->status === 'PENDING_CASHIER_WITHDRAWAL_SLIP')
-                                                ເບິ່ງ ແລະ ຢືນຢັນການຕີໃບຖອນ
-                                            @else
-                                                ເບິ່ງ ແລະ ຢືນຢັນການຈ່າຍເງິນ
-                                            @endif
-                                        </a>
-                                    </td>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ລະຫັດເອກະສານ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ຫົວຂໍ້ເອກະສານ</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ຜູ້ຮ້ອງຂໍ</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">ມູນຄ່າລວມ</th>
+                                    <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ວັນທີອະນຸມັດ</th>
+                                    <th class="relative px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ການດໍາເນີນການ</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                        ບໍ່ມີເອກະສານທີ່ລໍຖ້າການຈ່າຍເງິນ
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="mt-4">
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($payableDocuments as $document)
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-6 py-4 text-center font-mono text-sm text-gray-700">{{ $document->document_code ?? '-' }}</td>
+                                        <td class="px-6 py-4 font-medium text-gray-900">{{ $document->title }}</td>
+                                        <td class="px-6 py-4 text-center text-sm text-gray-600">{{ $document->requester->name ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4 text-right text-sm font-semibold text-blue-600">{{ number_format($document->total_amount, 0) }} KIP</td>
+                                        <td class="px-6 py-4 text-center text-xs text-gray-500">{{ $document->updated_at->format('d/m/Y H:i') }}</td>
+                                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm font-medium">
+                                            <a href="{{ route('cashier.documents.show', $document->id) }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 transition">
+                                                @if($document->status === 'PENDING_CASHIER_WITHDRAWAL_SLIP')
+                                                    ເບິ່ງ ແລະ ຢືນຢັນການຕີໃບຖອນ
+                                                @else
+                                                    ເບິ່ງ ແລະ ຢືນຢັນການຈ່າຍເງິນ
+                                                @endif
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                            ບໍ່ມີເອກະສານທີ່ລໍຖ້າການຈ່າຍເງິນ
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- ========================================================================= --}}
+                    {{-- 2. ສ່ວນສະແດງຜົນເທິງມືຖື (Mobile Card View) --}}
+                    {{-- ========================================================================= --}}
+                    <div class="block md:hidden space-y-4 mt-4">
+                        @forelse ($payableDocuments as $document)
+                            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                                
+                                {{-- ແຖບສີບອກສະຖານະ --}}
+                                <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-400 opacity-70"></div>
+
+                                {{-- ລະຫັດເອກະສານ & ວັນທີ --}}
+                                <div class="flex justify-between items-start pl-2 mb-2">
+                                    <span class="font-mono text-xs font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                                        {{ $document->document_code ?? '-' }}
+                                    </span>
+                                    <span class="text-xs text-gray-500">{{ $document->updated_at->format('d/m/Y') }}</span>
+                                </div>
+
+                                {{-- ຫົວຂໍ້ເອກະສານ --}}
+                                <div class="pl-2 mb-3">
+                                    <h4 class="font-bold text-gray-900 text-sm leading-snug">{{ $document->title }}</h4>
+                                </div>
+
+                                {{-- ລາຍລະອຽດຍ່ອຍ --}}
+                                <div class="pl-2">
+                                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                                        <div>
+                                            <span class="block text-gray-400 mb-0.5">ຜູ້ຮ້ອງຂໍ</span>
+                                            <span class="font-medium text-gray-800">{{ $document->requester->name ?? 'N/A' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-gray-400 mb-0.5">ມູນຄ່າລວມ</span>
+                                            <span class="font-bold text-blue-600">{{ number_format($document->total_amount, 0) }} KIP</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ປຸ່ມດຳເນີນການ --}}
+                                <div class="pt-3 mt-3 border-t border-gray-100 pl-2 flex justify-end">
+                                    <a href="{{ route('cashier.documents.show', $document->id) }}" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 bg-white px-4 py-2 rounded-lg border border-indigo-200 shadow-sm transition">
+                                        ດຳເນີນການ &rarr;
+                                    </a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-gray-500">
+                                ບໍ່ມີເອກະສານທີ່ລໍຖ້າການຈ່າຍເງິນ
+                            </div>
+                        @endforelse
+                    </div>
+
+                    {{-- Pagination Links --}}
+                    <div class="mt-6">
                         {{ $payableDocuments->links() }}
                     </div>
-                    {{-- ... (Pagination) ... --}}
+
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

@@ -96,6 +96,9 @@
                     @elseif($userRole === 'Procurement_Staff')
                         <x-nav-link :href="route('procurement.dashboard')" :active="request()->routeIs('procurement.dashboard')">{{ __('ໜ້າຫຼັກຝ່າຍຈັດຊື້') }}</x-nav-link>
                         <x-nav-link :href="route('procurement.history.approved')" :active="request()->routeIs('procurement.history.approved')">{{ __('ເອກະສານທີ່ອະນຸມັດຜ່ານ') }}</x-nav-link>
+                        <x-nav-link :href="route('procurement.history.rejected')" :active="request()->routeIs('procurement.history.rejected')">
+                            {{ __('ເອກະສານທີ່ໄດ້ສະເໜີໃຫ້ປັບປຸງຄືນ') }}
+                        </x-nav-link>
                     @endif
 
                     {{-- เมนูรายงาน (แสดงสำหรับ Admin และ Head_of_Finance) --}}
@@ -268,6 +271,9 @@
                 <x-responsive-nav-link :href="route('vicedean.dashboard')" :active="request()->routeIs('vicedean.*')">
                     {{ __('ໜ້າຫຼັກຮອງຄະນະບໍດີ') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('vicedean.documents.all')" :active="request()->routeIs('vicedean.documents.all')">
+                    {{ __('ຕິດຕາມເອກະສານທັງໝົດ') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('vicedean.history.approved')" :active="request()->routeIs('vicedean.history.approved')">
                     {{ __('ເອກະສານທີ່ໄດ້ອະນຸມັດ/ກວດສອບຜ່ານ') }}
                 </x-responsive-nav-link>
@@ -278,6 +284,9 @@
             @elseif($userRole === 'Head_of_Finance')
                 <x-responsive-nav-link :href="route('headfinance.dashboard')" :active="request()->routeIs('headfinance.*')">
                     {{ __('ໜ້າຫຼັກຫົວໜ້າພະແນກການເງິນ') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('headfinance.documents.all')" :active="request()->routeIs('headfinance.documents.all')">
+                    {{ __('ຕິດຕາມເອກະສານທັງໝົດ') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('headfinance.history.approved')" :active="request()->routeIs('headfinance.history.approved')">
                     {{ __('ເອກະສານທີ່ໄດ້ກວດສອບ/ເຊັນຢັ້ງຢືນ') }}
@@ -290,11 +299,14 @@
                 <x-responsive-nav-link :href="route('dean.dashboard')" :active="request()->routeIs('dean.*')">
                     {{ __('ໜ້າຫຼັກຄະນະບໍດີ') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('dean.documents.all')" :active="request()->routeIs('dean.documents.all')">
+                    {{ __('ຕິດຕາມເອກະສານທັງໝົດ') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('dean.history.approved')" :active="request()->routeIs('dean.history.approved')">
                     {{ __('ເອກະສານທີ່ໄດ້ອະນຸມັດ') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('dean.history.rejected')" :active="request()->routeIs('dean.history.rejected')">
-                    {{ __('ເອກະສານທີ່ບໍ່ໄດ້ອະນຸມັດ') }}
+                    {{ __('ເອກະສານທີ່ໃຫ້ປັບປຸງຄືນ') }}
                 </x-responsive-nav-link>
 
             @elseif($userRole === 'Procurement_Staff')
@@ -309,9 +321,13 @@
                 </x-responsive-nav-link>  
 
             @elseif($userRole === 'Cashier')
-                <x-responsive-nav-link :href="route('cashier.dashboard')" :active="request()->routeIs('cashier.*')">
-                    {{ __('ລາຍການເອກະສານທີ່ລໍຖ້າຈ່າຍເງິນ') }}
+                <x-responsive-nav-link :href="route('cashier.dashboard')" :active="request()->routeIs('cashier.dashboard')">{{ __('ໜ້າຫຼັກຄັງເງິນສົດ') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('cashier.history.withdrawalSlips')" :active="request()->routeIs('cashier.history.withdrawalSlips')">
+                            {{ __('ເອກະສານທີ່ຂຽນໃບຖອນແລ້ວ') }}
                 </x-responsive-nav-link>
+                <!--<x-responsive-nav-link :href="route('cashier.dashboard')" :active="request()->routeIs('cashier.*')">
+                    {{ __('ລາຍການເອກະສານທີ່ລໍຖ້າຈ່າຍເງິນ') }}
+                </x-responsive-nav-link>-->
                 <x-responsive-nav-link :href="route('cashier.history.approved')" :active="request()->routeIs('cashier.history.approved')">
                     {{ __('ເອກະສານທີ່ໄດ້ຈ່າຍເງິນແລ້ວ') }}
                 </x-responsive-nav-link>

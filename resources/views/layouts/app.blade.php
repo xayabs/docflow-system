@@ -17,6 +17,15 @@
         <link href="https://fonts.googleapis.com/css2?family=Saysettha+OT&display=swap" rel="stylesheet">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <!-- PWA Manifest & Meta Tags -->
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="theme-color" content="#2563eb">
+        
+        <!-- ສຳລັບ iOS Safari -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="FDTS">
+        <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-192x192.png') }}">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -86,5 +95,19 @@
                 altFormat: "d/m/Y", // แสดง dd/mm/yyyy ให้ผู้ใช้เห็น
             });
         </script>-->
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registered successfully with scope: ', registration.scope);
+                        })
+                        .catch(error => {
+                            console.log('ServiceWorker registration failed: ', error);
+                        });
+                });
+            }
+        </script>
     </body>
 </html>
