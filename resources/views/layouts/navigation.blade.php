@@ -11,7 +11,8 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <!--<div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">-->
+                <div class="hidden space-x-4 sm:-my-px sm:ms-6 sm:flex">
                     @php
                         $userRole = auth()->user()->role->name;
                     @endphp
@@ -110,8 +111,6 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                
-                {{-- ===== Notification Dropdown ===== --}}
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
                     <x-dropdown align="right" width="w-96"> {{-- ເຮັດໃຫ້ Dropdown ກວ້າງຂື້ນ --}}
                         <x-slot name="trigger">
@@ -203,6 +202,15 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <div class="px-4 py-2">
+            <button type="button" onclick="subscribeUserToPush()" 
+                    class="w-full justify-center inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-sm">
+                🔔 ເປີດແຈ້ງເຕືອນມືຖື
+            </button>
+            <div class="mt-2 text-center text-sm text-gray-600 bg-gray-100 py-1 rounded">
+                ແຈ້ງເຕືອນ: {{ auth()->user()->unreadNotifications->count() }} ລາຍການ
+            </div>
+        </div>
         <div class="pt-2 pb-3 space-y-1">
             @php
                 $userRole = auth()->user()->role->name;

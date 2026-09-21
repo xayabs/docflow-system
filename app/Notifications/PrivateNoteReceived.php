@@ -6,6 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 use App\Models\Document;
 use App\Models\User;
 
@@ -34,12 +36,14 @@ class PrivateNoteReceived extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database']; // ส่งแค่ในระบบ, ไม่ต้องส่งอีเมล
+        // 2. ເພີ່ມ WebPushChannel::class ເຂົ້າໄປຮ່ວມກັບ database ແລະ mail
+        return ['database', 'mail', WebPushChannel::class];
     }
+
 
     /**
      * Get the mail representation of the notification.
-     */
+     *//*
     public function toMail(object $notifiable): MailMessage
     {
         $url = getShowUrlForRole($notifiable->role->name, $this->document->id);
@@ -49,7 +53,36 @@ class PrivateNoteReceived extends Notification implements ShouldQueue
                     ->line('ທ່ານໄດ້ຮັບໂໜດໃໝ່ຈາກ ' . $this->sender->displayName . ' ກ່ຽວກັບເອກະສານ "' . $this->document->title . '".')
                     ->line('ຂໍ້ຄວາມ: ' . $this->note)
                     ->action('ໄປທີ່ເອກະສານ', $url);
+    }*/
+    public function toMail(object $notifiable): MailMessage
+    {
+        $url = getShowUrlForRole($notifiable->role->name, $this->document->id);
+
+        return (new MailMessage)
+                    ->subject('ແຈ້ງເຕືອນ: ທ່ານໄດ້ຮັບໂນດ/ຄວາມເຫັນເພີ່ມເຕີມ')
+                    ->greeting('ສະບາຍດີ ' . $notifiable->name . ',')
+                    ->line('ທ່ານໄດ້ຮັບຂໍ້ຄວາມເພີ່ມເຕີມກ່ຽວກັບເອກະສານເລກທີ #' . $this->document->document_code . ' ຈາກ ' . $this->sender->name . ':')
+                    ->line('"' . $this->noteMessage . '"')
+                    ->action('ກວດສອບເອກະສານ', $url)
+                    ->line('ຂອບໃຈທີ່ໃຊ້ບໍລິການ!');
     }
+
+    /**
+     * Get the Web Push representation of the notification.
+     */
+    public function toWebPush($notifiable, $notification)
+    {
+        // 3. ສ້າງໂຄງສ້າງ ແລະ ຂໍ້ຄວາມສຳລັບ Push Notification ທີ່ຈະເດັ້ງຂຶ້ນໜ້າຈໍມືຖື
+        $url = getShowUrlForRole($notifiable->role->name, $this->document->id);
+
+        return (new WebPushMessage)
+            ->title('ມີໂນດ/ຄວາມເຫັນໃໝ່ຈາກ ' . $this->sender->name)
+            ->icon('/images/icons/icon-192x192.png')
+            ->body('ຂໍ້ຄວາມ: ' . $this->noteMessage)
+            ->action('ກວດສອບ', 'open_url')
+            ->data(['url' => $url]);
+    }
+
 
     /**
      * Get the array representation of the notification.

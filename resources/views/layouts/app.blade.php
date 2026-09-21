@@ -27,6 +27,13 @@
         <meta name="apple-mobile-web-app-title" content="FDTS">
         <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-192x192.png') }}">
 
+        <!-- ສຳລັບ Push Notification -->
+        <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
+        <meta name="push-subscribe-url" content="{{ route('push.subscribe') }}">
+        
+        <!-- CSRF Token (ມີຢູ່ແລ້ວໃນ app.blade.php ແຕ່ອາດຕ້ອງເພີ່ມໃນ welcome.blade.php) -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -108,6 +115,62 @@
                         });
                 });
             }
+        </script>
+
+        <script>
+            // ຟັງຊັນແປງ VAPID Key
+            function urlBase64ToUint8Array(base64String) {
+                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+                const rawData = window.atob(base64);
+                const outputArray = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; ++i) {
+                    outputArray[i] = rawData.charCodeAt(i);
+                }
+                return outputArray;
+            }
+
+            // ຟັງຊັນຂໍສິດ ແລະ ລົງທະບຽນ Push
+            function subscribeUserToPush() {
+                if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                    console.log('Push messaging is not supported');
+                    return;
+                }
+
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        navigator.serviceWorker.ready.then(registration => {
+                            const vapidPublicKey = "{{ config('webpush.vapid.public_key') }}";
+                            const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+                            registration.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: convertedVapidKey
+                            })
+                            .then(subscription => {
+                                // ສົ່ງຂໍ້ມູນ Subscription ໄປຫາ Laravel Backend
+                                fetch("{{ route('push.subscribe') }}", {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                                    },
+                                    body: JSON.stringify(subscription)
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    alert('ເປີດການແຈ້ງເຕືອນເທິງມືຖືສຳເລັດແລ້ວ!');
+                                });
+                            })
+                            .catch(err => {
+                                console.error('Failed to subscribe to push: ', err);
+                            });
+                        });
+                    }
+                });
+            }
+
+            // ກວດສອບຖ້າຍັງບໍ່ທັນໄດ້ອະນຸຍາດ ສາມາດເອີ້ນຟັງຊັນ subscribeUserToPush() ໄດ້
         </script>
     </body>
 </html>

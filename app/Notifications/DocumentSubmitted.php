@@ -7,6 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Document; // Import Document Model
+use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 
 class DocumentSubmitted extends Notification //implements ShouldQueue
 {
@@ -26,9 +28,22 @@ class DocumentSubmitted extends Notification //implements ShouldQueue
      *
      * @return array<int, string>
      */
+    
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        // ===== 2. ເພີ່ມ WebPushChannel::class ໃສ່ໃນ via() =====
+        return ['database', 'mail', WebPushChannel::class];
+    }
+
+    // ===== 3. ເພີ່ມ Function ນີ້ເພື່ອສ້າງຂໍ້ຄວາມຍິງຫາມືຖື =====
+    public function toWebPush($notifiable, $notification)
+    {
+        return (new WebPushMessage)
+            ->title('ມີເອກະສານໃໝ່ລໍຖ້າການກວດສອບ')
+            ->icon('/images/icons/icon-192x192.png')
+            ->body('ເອກະສານ "' . $this->document->title . '" ຖືກສົ່ງມາຫາທ່ານ.')
+            ->action('ເປີດເບິ່ງ', 'open_url')
+            ->data(['url' => route('secretary.documents.show', $this->document->id)]);
     }
 
     /**
@@ -43,6 +58,7 @@ class DocumentSubmitted extends Notification //implements ShouldQueue
                     ->action('ໄປຫາລະບົບ', $url)
                     ->line('ຂອບໃຈທີ່ໃຊ້ບໍລິການ!');
     }
+
 
     /**
      * Get the array representation of the notification.

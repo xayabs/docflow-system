@@ -6,6 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
+use App\Models\Document;
 
 class DocumentReadyToPrint extends Notification
 {
@@ -20,8 +23,41 @@ class DocumentReadyToPrint extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database']; // ປ່ຽນເປັນ database (ຖ້າບໍ່ມີການຕັ້ງຄ່າ Mail Server ໃຫ້ເອົາ 'mail' ອອກກ່ອນ)
+        // 2. ເພີ່ມ WebPushChannel::class ເຂົ້າໄປຮ່ວມກັບ database ແລະ mail
+        return ['database', 'mail', WebPushChannel::class];
     }
+
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable): MailMessage
+    {
+        $url = getShowUrlForRole($notifiable->role->name, $this->document->id);
+
+        return (new MailMessage)
+                    ->subject('ແຈ້ງເຕືອນ: ເອກະສານພ້ອມສຳລັບພິມແລ້ວ')
+                    ->greeting('ສະບາຍດີ ' . $notifiable->name . ',')
+                    ->line('ເອກະສານເລກທີ #' . $this->document->document_code . ' ທີ່ມີຫົວຂໍ້ວ່າ "' . $this->document->title . '" ໄດ້ຮັບການອະນຸມັດ ແລະ ພ້ອມສຳລັບການພິມແລ້ວ.')
+                    ->action('ພິມເອກະສານ', $url)
+                    ->line('ຂອບໃຈທີ່ໃຊ້ບໍລິການ!');
+    }
+
+    /**
+     * Get the Web Push representation of the notification.
+     */
+    public function toWebPush($notifiable, $notification)
+    {
+        // 3. ສ້າງໂຄງສ້າງ ແລະ ຂໍ້ຄວາມສຳລັບ Push Notification ທີ່ຈະເດັ້ງຂຶ້ນໜ້າຈໍມືຖື
+        $url = getShowUrlForRole($notifiable->role->name, $this->document->id);
+
+        return (new WebPushMessage)
+            ->title('ເອກະສານພ້ອມສຳລັບພິມແລ້ວ!')
+            ->icon('/images/icons/icon-192x192.png')
+            ->body('ເອກະສານ "' . $this->document->title . '" ໄດ້ຮັບການອະນຸມັດແລ້ວ.')
+            ->action('ກວດສອບ', 'open_url')
+            ->data(['url' => $url]);
+    }
+
     /*
     public function toArray(object $notifiable): array
     {

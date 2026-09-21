@@ -6,6 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 use App\Models\Document; // Import Document Model
 
 
@@ -36,8 +38,8 @@ class DocumentPaid extends Notification
      */
     public function via(object $notifiable): array
     {
-        // ກຳນົດວ່າຈະສົ່ງການແຈ້ງເຕືອນຜ່ານຊ່ອງທາງໃດແດ່
-        return ['database', 'mail'];
+        // 2. ເພີ່ມ WebPushChannel::class ເຂົ້າໄປຮ່ວມກັບ database ແລະ mail
+        return ['database', 'mail', WebPushChannel::class];
     }
 
     /**
@@ -45,7 +47,7 @@ class DocumentPaid extends Notification
      *
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
-     */
+     *//*
     public function toMail(object $notifiable): MailMessage
     {
         $url = getShowUrlForRole($notifiable->role->name, $this->document->id); // ใช้วิธีนี้จะดีกว่า
@@ -58,7 +60,52 @@ class DocumentPaid extends Notification
                     ->line($message)
                     ->action('ເບິ່ງລາຍລະອຽດເອກະສານ', $url)
                     ->line('ຂອບໃຈທີ່ໃຊ້ບໍລິການ!');
+    }*/
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $userRole = $notifiable->role->name;
+        $url = '#';
+
+        if ($userRole === 'Staff') {
+            $targetDocumentId = $this->document->parent_document_id ?? $this->document->id;
+            $url = route('staff.documents.show', $targetDocumentId);
+        } elseif ($userRole === 'Procurement_Staff') {
+            $url = route('procurement.documents.show', $this->document->id);
+        }
+
+        return (new MailMessage)
+                    ->subject('ແຈ້ງເຕືອນ: ເອກະສານຂອງທ່ານໄດ້ຮັບການຈ່າຍເງິນແລ້ວ')
+                    ->greeting('ສະບາຍດີ ' . $notifiable->name . ',')
+                    ->line('ເອກະສານເລກທີ #' . $this->document->document_code . ' ທີ່ມີຫົວຂໍ້ວ່າ "' . $this->document->title . '" ໄດ້ຮັບການຈ່າຍເງິນຮຽບຮ້ອຍແລ້ວ.')
+                    ->action('ເບິ່ງລາຍລະອຽດເອກະສານ', $url)
+                    ->line('ຂອບໃຈທີ່ໃຊ້ບໍລິການ!');
     }
+
+    /**
+     * Get the Web Push representation of the notification.
+     */
+    public function toWebPush($notifiable, $notification)
+    {
+        // 3. ສ້າງໂຄງສ້າງ ແລະ ຂໍ້ຄວາມສຳລັບ Push Notification ທີ່ຈະເດັ້ງຂຶ້ນໜ້າຈໍມືຖື
+        $userRole = $notifiable->role->name;
+        $url = '#';
+
+        if ($userRole === 'Staff') {
+            $targetDocumentId = $this->document->parent_document_id ?? $this->document->id;
+            $url = route('staff.documents.show', $targetDocumentId);
+        } elseif ($userRole === 'Procurement_Staff') {
+            $url = route('procurement.documents.show', $this->document->id);
+        }
+
+        return (new WebPushMessage)
+            ->title('ເອກະສານໄດ້ຮັບການຈ່າຍເງິນແລ້ວ!')
+            ->icon('/images/icons/icon-192x192.png')
+            ->body('ເອກະສານ "' . $this->document->title . '" ໄດ້ຮັບການຈ່າຍເງິນຮຽບຮ້ອຍແລ້ວ.')
+            ->action('ເບິ່ງລາຍລະອຽດ', 'open_url')
+            ->data(['url' => $url]);
+    }
+
 
     /**
      * Get the array representation of the notification.

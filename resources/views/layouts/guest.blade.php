@@ -23,6 +23,13 @@
         <meta name="apple-mobile-web-app-title" content="FDTS">
         <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-192x192.png') }}">
 
+        <!-- ສຳລັບ Push Notification -->
+        <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
+        <meta name="push-subscribe-url" content="{{ route('push.subscribe') }}">
+        
+        <!-- CSRF Token (ມີຢູ່ແລ້ວໃນ app.blade.php ແຕ່ອາດຕ້ອງເພີ່ມໃນ welcome.blade.php) -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 

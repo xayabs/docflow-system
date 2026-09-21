@@ -6,6 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 use App\Models\Document; // Import Document Model
 use App\Models\User;     // Import User Model
 
@@ -34,8 +36,19 @@ class DocumentRejected extends Notification
      */
     public function via(object $notifiable): array
     {
-        // ສົ່ງຜ່ານຖານຂໍ້ມູນ ແລະ ອີເມວ
-        return ['database', 'mail'];
+        // 2. ເພີ່ມ WebPushChannel::class ເຂົ້າໄປ
+        return ['database', 'mail', WebPushChannel::class];
+    }
+
+    public function toWebPush($notifiable, $notification)
+    {
+        return (new WebPushMessage)
+            ->title('ເອກະສານຖືກປະຕິເສດ!')
+            ->icon('/images/icons/icon-192x192.png')
+            ->body('ເອກະສານ "' . $this->document->title . '" ຖືກປະຕິເສດໂດຍ ' . $this->rejector->name)
+            ->action('ກວດສອບ', 'open_url')
+            // ກຳນົດ URL ໃຫ້ຊີ້ໄປໜ້າ Edit ຫຼື Show ຂອງ Staff ຕາມຄວາມເໝາະສົມ
+            ->data(['url' => route('staff.documents.edit', $this->document->id)]);
     }
 
     /**
