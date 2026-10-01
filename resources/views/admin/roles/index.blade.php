@@ -5,83 +5,114 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Form for creating a new role -->
-            <div class="md:col-span-1">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">ເພີ່ມບົດບາດໃໝ່</h3>
-                        
-                        @if ($errors->any())
-                            <div class="mb-4 text-sm text-red-600">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+    <div class="py-6 md:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Form for creating a new role -->
+                <div class="md:col-span-1">
+                    <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
+                        <div class="p-4 sm:p-6">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">ເພີ່ມບົດບາດໃໝ່</h3>
+                            
+                            @if ($errors->any())
+                                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-sm">
+                                    <ul class="list-disc list-inside">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                        <form action="{{ route('admin.roles.store') }}" method="POST">
-                            @csrf
-                            <div>
-                                <x-input-label for="name" :value="__('ຊື່ບົດບາດ')" />
-                                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required />
-                            </div>
-                            <div class="mt-4">
-                                <x-primary-button>
-                                    {{ __('ບັນທຶກ') }}
-                                </x-primary-button>
-                            </div>
-                        </form>
+                            <form action="{{ route('admin.roles.store') }}" method="POST">
+                                @csrf
+                                <div>
+                                    <x-input-label for="name" :value="__('ຊື່ບົດບາດ')" />
+                                    <x-text-input id="name" class="block mt-1 w-full text-sm" type="text" name="name" :value="old('name')" placeholder="ຕົວຢ່າງ: Staff, Dean..." required />
+                                </div>
+                                <div class="mt-4">
+                                    <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-blue-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-blue-700 shadow-sm transition">
+                                        {{ __('ບັນທຶກ') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Table of existing roles -->
-            <div class="md:col-span-2">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">
-                        @if (session('success'))
-                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                                <span class="block sm:inline">{{ session('success') }}</span>
+                <!-- Table/List of existing roles -->
+                <div class="md:col-span-2">
+                    <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
+                        <div class="p-4 sm:p-6 text-gray-900">
+                            @if (session('success'))
+                                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg text-sm mb-4">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">ບົດບາດທັງໝົດໃນລະບົບ</h3>
+
+                            {{-- Desktop Table (hidden md:block) --}}
+                            <div class="hidden md:block overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ລະຫັດ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ຊື່ບົດບາດ</th>
+                                            <th class="relative px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ການດຳເນີນການ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @forelse ($roles as $role)
+                                            <tr class="hover:bg-gray-50 transition">
+                                                <td class="px-6 py-4 text-center font-mono text-sm text-gray-500">{{ $role->id }}</td>
+                                                <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ $role->name }}</td>
+                                                <td class="px-6 py-4 text-right whitespace-nowrap text-sm font-medium">
+                                                    <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບບົດບາດນີ້?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50 transition">ລຶບ</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="px-6 py-8 text-center text-sm text-gray-500">ບໍ່ມີຂໍ້ມູນບົດບາດ</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
-                        @endif
 
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-center text-base font-bold text-gray-500 uppercase">ລະຫັດ</th>
-                                    <th class="px-6 py-3 text-left text-base font-bold text-gray-500 uppercase">ຊື່ບົດບາດ</th>
-                                    <th class="relative px-6 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            {{-- Mobile List View (block md:hidden) --}}
+                            <div class="block md:hidden space-y-3">
                                 @forelse ($roles as $role)
-                                    <tr>
-                                        <td class="px-6 py-4 text-center">{{ $role->id }}</td>
-                                        <td class="px-6 py-4">{{ $role->name }}</td>
-                                        <td class="px-6 py-4 text-right">
-                                            <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('ທ່ານແນ່ໃນບໍ ທີ່ຈະລຶບບົດບາດນີ້?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">ລຶບ</button>
-                                            </form>
-                                        </td>
-                                    </tr>
+                                    <div class="flex items-center justify-between p-3.5 bg-gray-50 rounded-xl border border-gray-200 shadow-sm">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="font-mono text-xs font-bold bg-white border border-gray-300 text-gray-600 px-2 py-1 rounded-md">#{{ $role->id }}</span>
+                                            <span class="text-sm font-bold text-gray-900 leading-snug">{{ $role->name }}</span>
+                                        </div>
+                                        <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບບົດບາດນີ້?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 font-semibold text-xs px-2.5 py-1.5 rounded-lg border border-red-200 bg-white hover:bg-red-50 transition">
+                                                ລຶບ
+                                            </button>
+                                        </form>
+                                    </div>
                                 @empty
-                                    <tr>
-                                        <td colspan="3" class="px-6 py-4 text-center text-gray-500">ບໍ່ມີຂໍ້ມູນບົດບາດ</td>
-                                    </tr>
+                                    <div class="text-center py-6 text-sm text-gray-500 bg-gray-50 rounded-xl border border-dashed">
+                                        ບໍ່ມີຂໍ້ມູນບົດບາດ
+                                    </div>
                                 @endforelse
-                            </tbody>
-                        </table>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </x-app-layout>

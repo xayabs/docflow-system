@@ -9,7 +9,8 @@ class PushSubscriptionController extends Controller
 {
     public function store(Request $request)
     {
-        $this->validate($request, [
+        // ✅ ປ່ຽນມາໃຊ້ $request->validate() ແທນ
+        $validatedData = $request->validate([
             'endpoint'    => 'required',
             'keys.auth'   => 'required',
             'keys.p256dh' => 'required'
@@ -24,4 +25,22 @@ class PushSubscriptionController extends Controller
 
         return response()->json(['success' => true], 200);
     }
+    /*
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'endpoint'    => 'required',
+            'keys.auth'   => 'required',
+            'keys.p256dh' => 'required'
+        ]);
+
+        $endpoint = $request->endpoint;
+        $token = $request->keys['auth'];
+        $key = $request->keys['p256dh'];
+
+        // ບັນທຶກ ຫຼື ອັບເດດອຸປະກອນມືຖືຂອງຜູ້ໃຊ້ທີ່ກຳລັງ Login
+        Auth::user()->updatePushSubscription($endpoint, $key, $token);
+
+        return response()->json(['success' => true], 200);
+    }*/
 }

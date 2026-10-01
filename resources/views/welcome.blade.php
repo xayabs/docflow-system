@@ -147,11 +147,50 @@
                             </li>
                         </ul>
                     </div>
+
+                    {{-- ======================================================= --}}
+                    {{-- ຂໍ້ 2: ຂໍ້ມູນທາງເຕັກນິກ --}}
+                    {{-- ======================================================= --}}
+                    <div class="mt-6">
+                        <h4 class="text-lg font-bold text-gray-800 flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            2. ຂໍ້ມູນທາງເຕັກນິກ (Technical Information):
+                        </h4>
+                        <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 space-y-3 border border-gray-100">
+                            <div class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-0.5">▪</span>
+                                <p><span class="font-semibold text-gray-800">ໂຄງສ້າງລະບົບ (Tech Stack):</span> ພັດທະນາດ້ວຍ Laravel (PHP), ຖານຂໍ້ມູນ MySQL, ຈັດຮູບແບບໜ້າຈໍດ້ວຍ Tailwind CSS ແລະ Alpine.js.</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-0.5">▪</span>
+                                <p><span class="font-semibold text-gray-800">ລະບົບສິດທິຜູ້ໃຊ້ (RBAC):</span> ຮອງຮັບ 10 ບົດບາດຜູ້ໃຊ້ ພ້ອມກຳນົດສິດການເຂົ້າເຖິງຂໍ້ມູນ ແລະ ໜ້າຈໍ ຢ່າງປອດໄພ.</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-0.5">▪</span>
+                                <p><span class="font-semibold text-gray-800">ຂະບວນການອັດຕະໂນມັດ (Workflow Engine):</span> ຮອງຮັບ 2 ເສັ້ນທາງເອກະສານ (ຂໍຖອນເງິນ ແລະ ຈັດຊື້) ທີ່ເຊື່ອມໂຍງກັນອັດຕະໂນມັດ ພ້ອມລະບົບສົ່ງເອກະສານກັບ (Reject) ໃນທຸກຂັ້ນຕອນ.</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-0.5">▪</span>
+                                <p><span class="font-semibold text-gray-800">ຮອງຮັບທຸກອຸປະກອນ (Responsive & PWA):</span> ປັບເປັນຕາຕະລາງໃນຄອມພິວເຕີ ແລະ ເປັນຮູບແບບ Card ໃນມືຖື, ພ້ອມສາມາດຕິດຕັ້ງເປັນແອັບລົງໜ້າຈໍມືຖື (PWA) ໄດ້.</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-0.5">▪</span>
+                                <p><span class="font-semibold text-gray-800">ລະບົບແຈ້ງເຕືອນ (Notifications):</span> ແຈ້ງເຕືອນຜ່ານໄອຄອນກະດິ່ງພາຍໃນລະບົບ ແລະ ຮອງຮັບແຈ້ງເຕືອນເດັ້ງຂຶ້ນໜ້າຈໍມືຖື (Web Push Notification).</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-0.5">▪</span>
+                                <p><span class="font-semibold text-gray-800">ຟັງຊັນພິເສດອື່ນໆ:</span> ຟອມເພີ່ມລາຍການເບີກຈ່າຍແບບ Dynamic, ລະບົບແນບໂໜດສ່ວນຕົວຫາກັນ, ບັນທຶກປະຫວັດເອກະສານລະອຽດ (Document Logs) ແລະ ລະບົບຄົ້ນຫາ/ກັ່ນຕອງ.</p>
+                            </div>
+                        </div>
+                    </div>
                 
                     <div class="pt-6 border-t border-gray-200">
                         <h3 class="text-lg font-bold text-gray-900 flex items-center mb-3">
                             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                            2. ຂໍ້ມູນຜູ້ພັດທະນາ (Developer):
+                            3. ຂໍ້ມູນຜູ້ພັດທະນາ (Developer):
                         </h3>
                         <ul class="list-none space-y-2 pl-2 sm:pl-7">
                             <li><span class="font-semibold text-gray-900">ຊື່ຜູ້ພັດທະນາ:</span> ອາຈານ ບົວສົດ ໄຊຍະຈັກ</li>
